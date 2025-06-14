@@ -68,7 +68,7 @@ void Cube::init() {
 	for (int i = 0; i < noVertices; i++) {
 		int base = i * 5;
 		vertices[i].pos   = glm::vec3(v[base], v[base+1], v[base+2]);
-		vertices[i].color = glm::vec3(0.4f, 0.5f, 0.6f);
+		vertices[i].normal = glm::vec3(0.4f, 0.5f, 0.6f);
 		vertices[i].tex = glm::vec2(v[base + 3], v[base + 4]);
 	}
 	meshes.push_back(TextureMesh(vertices));

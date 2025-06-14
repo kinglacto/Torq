@@ -74,17 +74,18 @@ int main(){
 		std::cerr << "Texture activation failed: " << std::endl;
 	}
 
-	Cube model(glm::vec3(0.0f, 0.0f, 0.0f), 100.0f, shader, texture);
+	Sphere model(glm::vec3(0.0f, 0.0f, 0.0f), 100.0f, shader, texture);
 	model.init();
 
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
 
+
 	while (!screen.shouldClose()) {
 		auto currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-
+		camera.deltaTime = deltaTime;
 		processInput();
 		screen.update();
 		view = camera.getViewMatrix();
@@ -126,7 +127,7 @@ void processInput() {
 	mouse_dy = mouse::getDY();
 
 	if (mouse_dx != 0 || mouse_dy != 0) {
-		if (mouse::button(GLFW_MOUSE_BUTTON_LEFT)) camera.updateCameraDirection(mouse_dx, mouse_dy);
+		if (mouse::button(GLFW_MOUSE_BUTTON_LEFT) || keyboard::key(GLFW_KEY_W) || keyboard::key(GLFW_KEY_S)) camera.updateCameraDirection(mouse_dx, mouse_dy);
 	}
 
 	mouse_scroll = mouse::getScrollDY();

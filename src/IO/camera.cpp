@@ -3,13 +3,13 @@
 Camera::Camera(glm::vec3 position)
     : zoom(45.0f), cameraPos(position), cameraFront(glm::vec3(0.0f, 0.0f, -1.0f)),
     cameraUp(glm::vec3(0.0f, 1.0f, 0.0f)), cameraRight(glm::vec3(1.0f, 0.0f, 0.0f)), worldUp(glm::vec3(0.0f, 1.0f, 0.0f)), yaw(-90.0f),
-    pitch(0.0f), sensitivity(0.3f), speed(90.0f) {
+    pitch(0.0f), sensitivity(18.0f), speed(6000.0f) {
     updateCameraVectors();
 }
 
 void Camera::updateCameraDirection(double dx, double dy) {
-    yaw += sensitivity * dx;
-    pitch += sensitivity * dy;
+    yaw += sensitivity * deltaTime * dx;
+    pitch += sensitivity * deltaTime * dy;
 
     if (pitch > 89.0f) {
         pitch = 89.0f;
@@ -22,7 +22,7 @@ void Camera::updateCameraDirection(double dx, double dy) {
 
 }
 void Camera::updateCameraPos(cameraDirection dir, float dt) {
-    float dist = dt * speed;
+    float dist = dt * speed * deltaTime;
     switch (dir) {
         case cameraDirection::FORWARD: {
             cameraPos += cameraFront * dist;
@@ -81,9 +81,6 @@ void Camera::updateCameraVectors() {
     cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
 }
 
-void Camera::setSensitivity(double s) {
-    sensitivity = s;
-}
 
 float Camera::getZoom() const {
     return zoom;

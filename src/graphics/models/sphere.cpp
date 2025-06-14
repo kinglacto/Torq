@@ -22,7 +22,7 @@ void Sphere::init() {
 	constexpr int stackCount  = 31;
 	constexpr auto PI        = glm::pi<float>();
 
-	float x, y, z, xy;                              // vertex position
+	float x, y, z, xy;                              
 
 	float sectorStep = 2 * PI / sectorCount;
 	float stackStep = PI / stackCount;
@@ -30,18 +30,15 @@ void Sphere::init() {
 	std::vector<float> v;
 	for(int i = 0; i <= stackCount; ++i) {
 		float R         = 1.0f;
-		stackAngle = PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
-		xy = R * cosf(stackAngle);             // r * cos(u)
-		z = R * sinf(stackAngle);              // r * sin(u)
+		stackAngle = PI / 2 - i * stackStep;        
+		xy = R * cosf(stackAngle);            
+		z = R * sinf(stackAngle);              
 
-		// add (sectorCount+1) vertices per stack
-		// first and last vertices have same position and normal, but different tex coords
 		for(int j = 0; j <= sectorCount; ++j) {
-			sectorAngle = j * sectorStep;           // starting from 0 to 2pi
+			sectorAngle = j * sectorStep;          
 
-			// vertex position (x, y, z)
-			x = xy * cosf(sectorAngle);             // r * cos(u) * cos(v)
-			y = xy * sinf(sectorAngle);             // r * cos(u) * sin(v)
+			x = xy * cosf(sectorAngle);           
+			y = xy * sinf(sectorAngle);            
 			v.push_back(x);
 			v.push_back(y);
 			v.push_back(z);
@@ -57,20 +54,18 @@ void Sphere::init() {
 	std::cout << "successfully built a sphere mesh with vertexCount = " << vertexCount << std::endl;
 	for(int i = 0; i < vertexCount; ++i) {
 		int base = i * 6;
-		vertices[i].pos   = glm::vec3(v[base], v[base+1], v[base+2]);
+		vertices[i].pos   = glm::normalize(glm::vec3(v[base], v[base+1], v[base+2]));
 		vertices[i].color = glm::vec3(v[base+3], v[base+4], v[base+5]);
 	}
 
 	int k1, k2;
 	for(int i = 0; i < stackCount; ++i)
 	{
-		k1 = i * (sectorCount + 1);     // beginning of current stack
-		k2 = k1 + sectorCount + 1;      // beginning of next stack
+		k1 = i * (sectorCount + 1);     
+		k2 = k1 + sectorCount + 1;    
 
 		for(int j = 0; j < sectorCount; ++j, ++k1, ++k2)
 		{
-			// 2 triangles per sector excluding first and last stacks
-			// k1 => k2 => k1+1
 			if(i != 0)
 			{
 				indices.push_back(k1);
@@ -78,7 +73,6 @@ void Sphere::init() {
 				indices.push_back(k1 + 1);
 			}
 
-			// k1+1 => k2 => k2+1
 			if(i != (stackCount-1))
 			{
 				indices.push_back(k1 + 1);

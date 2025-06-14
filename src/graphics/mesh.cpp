@@ -131,7 +131,7 @@ void TextureMesh::setup() {
     glEnableVertexAttribArray(0);
 
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-		sizeof(TextureVertex), reinterpret_cast<void *>(offsetof(TextureVertex, color)));
+		sizeof(TextureVertex), reinterpret_cast<void *>(offsetof(TextureVertex, normal)));
 	glEnableVertexAttribArray(1);
 
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,

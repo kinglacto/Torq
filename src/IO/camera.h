@@ -21,11 +21,12 @@ public:
 	void updateCameraDirection(double dx, double dy);
 	void updateCameraPos(cameraDirection dir, float dt);
 	void updateCameraZoom(double dy);
-	void setSensitivity(double s);
 
 	[[nodiscard]] float getZoom() const;
 
 	[[nodiscard]] glm::mat4 getViewMatrix();
+
+	void updateCameraVectors();
 
 	float zoom;
 
@@ -44,10 +45,8 @@ public:
 	float znear = 1.0f;
 	float zfar = 4000.0f;
 
-
+	double deltaTime = 0;
 	float speed;
-
-	void updateCameraVectors();
 };
 
 #endif //CAMERA_H
