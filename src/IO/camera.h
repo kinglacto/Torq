@@ -42,7 +42,7 @@ public:
 	double sensitivity;
 
 	float znear = 1.0f;
-	float zfar = 10000.0f;
+	float zfar = 4000.0f;
 
 
 	float speed;

@@ -6,13 +6,13 @@
 
 #include <libintl.h>
 
-Texture::Texture(const char* texturePath) {
+Texture::Texture(const std::string& texturePath) {
 	setup(texturePath);
 }
 
 Texture::~Texture() = default;
 
-void Texture::setup(const char *texturePath) {
+void Texture::setup(const std::string& texturePath) {
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
 
@@ -23,7 +23,7 @@ void Texture::setup(const char *texturePath) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 	int width, height, nrChannels;
-	void *data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
+	void *data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
 
 	if (data) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,

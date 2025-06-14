@@ -2,14 +2,13 @@
 
 Shader::Shader() = default;
 
-Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath) {
-    std::cerr << "starting shader compilation" << std::endl;
+Shader::Shader(const std::string& vertexShaderPath, const std::string&  fragmentShaderPath) {
     generate(vertexShaderPath, fragmentShaderPath);
 }
 
 Shader::~Shader() = default;
 
-void Shader::generate(const char* vertexShaderPath, const char* fragmentShaderPath) {
+void Shader::generate(const std::string& vertexShaderPath, const std::string& fragmentShaderPath) {
     int success;
 
     const GLuint vertexShader = compileShader(vertexShaderPath, GL_VERTEX_SHADER);
@@ -32,7 +31,7 @@ void Shader::generate(const char* vertexShaderPath, const char* fragmentShaderPa
     glDeleteShader(fragmentShader);
 }
 
-GLuint Shader::compileShader(const char* filepath, GLenum type) {
+GLuint Shader::compileShader(const std::string& filepath, GLenum type) {
     int success;
     const GLuint Shader_id = glCreateShader(type);
     const GLchar* Shader_src = loadShaderSrc(filepath);
@@ -54,22 +53,25 @@ GLuint Shader::compileShader(const char* filepath, GLenum type) {
     return Shader_id;
 }
 
-const char* Shader::loadShaderSrc(const char* filepath) {
-    FILE* sp = fopen(filepath, "r");
-    if (sp == nullptr) {
-        std::cout << "Failed to open file " << filepath << std::endl;
+
+const char* Shader::loadShaderSrc(const std::string& filepath) {
+    std::ifstream file(filepath, std::ios::binary | std::ios::ate);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file " << filepath << std::endl;
         return nullptr;
     }
 
-    fseek(sp, 0, SEEK_END);
-    long int length = ftell(sp);
-    fseek(sp, 0, SEEK_SET);
+    std::streamsize size = file.tellg();
+    file.seekg(0, std::ios::beg);
 
-    char* buffer = static_cast<char*>(malloc(length + 1));
-    fread(buffer, 1, length, sp);
-    buffer[length] = '\0';
+    char* buffer = new char[size + 1];
+    if (!file.read(buffer, size)) {
+        std::cerr << "Failed to read file " << filepath << std::endl;
+        delete[] buffer;
+        return nullptr;
+    }
 
-    fclose(sp);
+    buffer[size] = '\0'; 
     return buffer;
 }
 

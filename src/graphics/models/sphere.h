@@ -12,14 +12,16 @@ class Sphere: public PrimitiveModel {
 
 	Shader* shader{nullptr};
 	Texture* texture{nullptr};
+
+	std::vector<PrimitiveVertex> vertices;
+	std::vector<unsigned int> indices;
 public:
 	glm::mat4 model{glm::mat4(1.0f)};
 
 	Sphere(glm::vec3 pos, float radius);
 	Sphere(glm::vec3 pos, float radius, Shader* shader, Texture* texture);
 	~Sphere();
-	std::vector<PrimitiveVertex> vertices;
-	std::vector<unsigned int> indices;
+
 	void init();
 	void render();
 

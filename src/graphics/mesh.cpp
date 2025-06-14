@@ -1,6 +1,3 @@
-//
-// Created by yashas on 3/20/25.
-//
 
 #include <mesh.h>
 #include <utility>
@@ -73,36 +70,8 @@ void PrimitiveMesh::setup() {
 	}
 }
 
-void PrimitiveMesh::setVertices(std::vector<PrimitiveVertex> vertices) {
-	PrimitiveMesh::vertices = std::move(vertices);
-}
-
-void PrimitiveMesh::setIndices(std::vector<unsigned int> indices) {
-	changed_element_indices = true;
-	PrimitiveMesh::indices = std::move(indices);
-}
-
 void PrimitiveMesh::setElementDraw(bool flag) {
-	if (flag == false) {
-		elementDraw = false;
-	}
-
-	else {
-		if (EBO != 0 && changed_element_indices) {
-			changed_element_indices = false;
-			glDeleteBuffers(1, &EBO);
-			EBO = 0;
-			glBindVertexArray(VAO);
-
-			glGenBuffers(1, &EBO);
-
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
-				&indices[0], GL_STATIC_DRAW);
-
-		}
-		elementDraw = true;
-	}
+	elementDraw = flag;
 }
 
 
@@ -179,34 +148,7 @@ void TextureMesh::setup() {
 	}
 }
 
-void TextureMesh::setVertices(std::vector<TextureVertex> vertices) {
-	TextureMesh::vertices = std::move(vertices);
-}
-
-void TextureMesh::setIndices(std::vector<unsigned int> indices) {
-	changed_element_indices = true;
-	TextureMesh::indices = std::move(indices);
-}
-
 void TextureMesh::setElementDraw(bool flag) {
-	if (flag == false) {
-		elementDraw = false;
-	}
+	elementDraw = flag;
 
-	else {
-		if (EBO != 0 && changed_element_indices) {
-			changed_element_indices = false;
-			glDeleteBuffers(1, &EBO);
-			EBO = 0;
-			glBindVertexArray(VAO);
-
-			glGenBuffers(1, &EBO);
-
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
-				&indices[0], GL_STATIC_DRAW);
-
-		}
-		elementDraw = true;
-	}
 }

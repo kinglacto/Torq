@@ -5,18 +5,20 @@
 #include "mesh.h"
 
 class PrimitiveModel {
-public:
+protected:
 	std::vector<PrimitiveMesh> meshes;
 	PrimitiveModel();
 	void renderAll();
+public:
 	void cleanup();
 };
 
 class TextureModel {
-public:
+protected:
 	std::vector<TextureMesh> meshes;
 	TextureModel();
 	void renderAll();
+public:
 	void cleanup();
 };
 

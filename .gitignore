@@ -1,7 +1,6 @@
 /build
 /cmake-build-debug
 .clang-format
-CMakeLists.txt
 /.vscode
 /src/notes
 .idea
