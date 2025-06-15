@@ -35,6 +35,7 @@ void Screen::setParameters() {
     glfwSetMouseButtonCallback(window, mouse::mouseButtonCallBack);
     glfwSetScrollCallback(window, mouse::mouseWheelCallBack);
 	glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_MULTISAMPLE);
     //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
 }
 

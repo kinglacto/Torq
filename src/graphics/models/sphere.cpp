@@ -6,10 +6,27 @@ radius(radius), position(pos) {
 	setRadius(radius);
 }
 
+Sphere::Sphere(const glm::vec3 pos, const float radius, const Material& material):
+radius(radius), position(pos), material(material) {
+	curr = position;
+	setRadius(radius);
+	using_material = true;
+}
+
+
+
 Sphere::Sphere(const glm::vec3 pos, const float radius, Shader* shader, Texture* texture) :
 	radius(radius), position(pos), shader(shader), texture(texture){
 	curr = position;
 	setRadius(radius);
+}
+
+Sphere::Sphere(const glm::vec3 pos, const float radius, Shader* shader, Texture* texture,
+const Material& material) :
+	radius(radius), position(pos), shader(shader), texture(texture), material(material){
+	curr = position;
+	setRadius(radius);
+	using_material = true;
 }
 
 Sphere::~Sphere() {
@@ -94,6 +111,12 @@ void Sphere::render() {
 
 	model = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), scale);
 	shader->setMat4("model", model);
+	if (using_material){
+		shader->set3Float("material.ambient", material.ambient);
+		shader->set3Float("material.diffuse", material.diffuse);
+		shader->set3Float("material.specular", material.specular);
+		shader->setFloat("material.shininess", material.shininess);
+	}
 	renderAll();
 }
 
@@ -118,4 +141,12 @@ bool Sphere::setRadius(const float radius) {
 
 void Sphere::setPosition(const glm::vec3 pos) {
 	position = pos;
+}
+
+void Sphere::setMaterial(const Material& material){
+	Sphere::material = material;
+}
+
+void Sphere::useMaterial(bool flag){
+	using_material = flag;
 }

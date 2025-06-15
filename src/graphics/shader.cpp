@@ -84,11 +84,28 @@ void Shader::activate() const {
 }
 
 void Shader::setInt(const std::string& name, int value) const {
-    glUniform1i(glGetUniformLocation(id, name.c_str()), value);
+    GLint loc = glGetUniformLocation(id, name.c_str());
+    if (loc != -1) glUniform1i(loc, value);
+    else std::cerr << "Error setting uniform variable " << name << ", could not locate it" << std::endl;
 }
 
 void Shader::setFloat(const std::string& name, float value) const {
-    glUniform1f(glGetUniformLocation(id, name.c_str()), value);
+    GLint loc = glGetUniformLocation(id, name.c_str());
+    if (loc != -1) glUniform1f(loc, value);
+    else std::cerr << "Error setting uniform variable " << name << ", could not locate it" << std::endl;
+    
+}
+
+void Shader::set3Float(const std::string& name, glm::vec3 v) const {
+    GLint loc = glGetUniformLocation(id, name.c_str());
+    if (loc != -1) glUniform3fv(loc, 1, glm::value_ptr(v));
+    else std::cerr << "Error setting uniform variable " << name << ", could not locate it" << std::endl;
+}   
+
+void Shader::set3Float(const std::string& name, float v1, float v2, float v3) const {
+    GLint loc = glGetUniformLocation(id, name.c_str());
+    if (loc != -1) glUniform3f(loc, v1, v2, v3);
+    else std::cerr << "Error setting uniform variable " << name << ", could not locate it" << std::endl;
 }
 
 unsigned int Shader::getId() const {

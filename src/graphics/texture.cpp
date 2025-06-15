@@ -16,18 +16,33 @@ void Texture::setup(const std::string& texturePath) {
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
 
+	// To-Do: Add functions that allow the user to set these parameters
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 	int width, height, nrChannels;
+	stbi_set_flip_vertically_on_load(true);
 	void *data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
-
 	if (data) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
-		GL_RGB, GL_UNSIGNED_BYTE, data);
+
+		GLenum format;
+		if (nrChannels == 1)
+			format = GL_RED;
+		else if (nrChannels == 3)
+			format = GL_RGB;
+		else if (nrChannels == 4)
+			format = GL_RGBA;
+		else {
+			std::cerr << "Unsupported number of channels: " << nrChannels << std::endl;
+			stbi_image_free(data);
+			return;
+		}
+
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 
@@ -39,7 +54,6 @@ void Texture::setup(const std::string& texturePath) {
 }
 
 bool Texture::activate(unsigned int unitIndex){
-	// turn an index (0,1,2…) into the correct enum:
 	GLenum unitEnum = GL_TEXTURE0 + unitIndex;
 	glActiveTexture(unitEnum);
 
@@ -51,7 +65,6 @@ bool Texture::activate(unsigned int unitIndex){
 		return false;
 	}
 
-	// now bind the texture into that slot
 	glBindTexture(GL_TEXTURE_2D, id);
 	texture_unit = unitIndex;
 	return true;

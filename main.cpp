@@ -15,6 +15,7 @@
 
 #include "src/graphics/models/sphere.h"
 #include "src/graphics/models/cube.h"
+#include "src/graphics/models/lamp.h"
 
 #include "src/resources/resource.h"
 
@@ -33,7 +34,7 @@ int SCREEN_HEIGHT = 600;
 
 float x, y, z;
 
-float deltaTime = 0.0f;	// Time between current frame and last frame
+float deltaTime = 0.0f;	
 float lastFrame = 0.0f;
 
 Camera camera(glm::vec3(0.0f, 0.0f, 200.0f));
@@ -63,8 +64,9 @@ int main(){
 
 	ResourceManager resource{};
 
-	resource.LoadShader(TEXTURE_VERTEX_SHADER, TEXTURE_FRAG_SHADER, 0);
-	resource.LoadTexture(PEPE_TEXTURE, 0);
+	resource.LoadShader(BASIC_TEXTURE_VERTEX_SHADER, BASIC_TEXTURE_FRAG_SHADER, 0);
+	resource.LoadTexture(BLOCK_TEXTURE, 0);
+	resource.LoadTexture(SURFACE_TEXTURE, 1);
 
 	Shader* shader = resource.GetShader(0);
 	shader->activate();
@@ -74,7 +76,7 @@ int main(){
 		std::cerr << "Texture activation failed: " << std::endl;
 	}
 
-	Sphere model(glm::vec3(0.0f, 0.0f, 0.0f), 100.0f, shader, texture);
+	Cube model(glm::vec3(0.0f, 0.0f, 0.0f), 16.0f, shader, texture);
 	model.init();
 
 	glm::mat4 view = glm::mat4(1.0f);
@@ -87,14 +89,18 @@ int main(){
 		lastFrame = currentFrame;
 		camera.deltaTime = deltaTime;
 		processInput();
-		screen.update();
 		view = camera.getViewMatrix();
 		projection = glm::perspective(glm::radians(camera.getZoom()),
 			static_cast<float>(SCREEN_WIDTH)/static_cast<float>(SCREEN_HEIGHT),
 			camera.znear, camera.zfar);
 
+		screen.update();
+
+		shader->activate();
+
 		shader->setMat4("view", view);
 		shader->setMat4("projection", projection);
+
 		model.render();
 		screen.newFrame();
 	}
@@ -142,4 +148,5 @@ void init() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	//glfwWindowHint(GLFW_SAMPLES, 8);
 }
