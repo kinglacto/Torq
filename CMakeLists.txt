@@ -8,6 +8,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(lib/glad)
+add_subdirectory(lib/glm)
 add_subdirectory(lib/stb_image)
 
 add_executable(torq
@@ -34,7 +35,6 @@ set_target_properties(torq
 
 find_package(OpenGL REQUIRED)
 find_package(GLFW3 REQUIRED)
-find_package(GLM REQUIRED)
 
 include_directories(include)
 target_link_libraries(torq
@@ -42,5 +42,6 @@ target_link_libraries(torq
     ${GLM_LIBRARY}
     OpenGL::GL
     glad
+    glm
     stb_image
 )
