@@ -2,7 +2,7 @@
 /cmake-build-debug
 .clang-format
 /.vscode
-/src/notes
+/notes
 .idea/
 .git/
 .cache
