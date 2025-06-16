@@ -7,6 +7,7 @@
 #include <memory>
 #include <map>
 #include <filesystem>
+#include <vector>
 
 class ChunkManager{
     std::string chunkDir;

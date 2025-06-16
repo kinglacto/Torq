@@ -1,7 +1,6 @@
 #include <chunk_management.h>
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <cstring>
 
 namespace fs = std::filesystem;
@@ -32,7 +31,7 @@ std::unique_ptr<Chunk> ChunkManager::load(int x, int z){
         std::ofstream file(filePath);
         if (!file) {
             std::cerr << "Failed to create file: " << filePath << std::endl;
-            return;
+            return nullptr;
         }
 
         regionFileCache[{region_x, region_z}] = true;
@@ -41,7 +40,7 @@ std::unique_ptr<Chunk> ChunkManager::load(int x, int z){
     std::ifstream file(filePath, std::ios::binary | std::ios::ate);
     if (!file){
         std::cerr << "Failed to open file " << filePath << std::endl;
-        return;
+        return nullptr;
     }
 
     std::streamsize fileSize = file.tellg();
@@ -51,7 +50,7 @@ std::unique_ptr<Chunk> ChunkManager::load(int x, int z){
     std::vector<uint8_t> buffer(fileSize);
     if (!file.read(reinterpret_cast<char*>(buffer.data()), fileSize))
         std::cerr << "Failed to read " << filePath << std::endl;
-        return;
+        return nullptr;
 
 
     size_t header_size = chunks_per_region_side * chunks_per_region_side * 
@@ -59,7 +58,7 @@ std::unique_ptr<Chunk> ChunkManager::load(int x, int z){
 
     if (buffer.size() < header_size){
         std::cerr << "Header lookup table too small in " << filePath << "... terminating" << std::endl;
-        return;
+        return nullptr;
     }
 
     struct HeaderEntry{chunk_header_offset_type offset; chunk_header_length_type length;};
@@ -72,7 +71,7 @@ std::unique_ptr<Chunk> ChunkManager::load(int x, int z){
     if (payloadStart + length > buffer.size()){
         std::cerr << "chunk in " << filePath << " corrupted for chunk: " << chunk_x << ", " <<
         chunk_z << " ... terminating" << std::endl;
-        return;
+        return nullptr;
     }
 
     uint8_t* payloadPtr = buffer.data() + payloadStart;
@@ -80,7 +79,7 @@ std::unique_ptr<Chunk> ChunkManager::load(int x, int z){
     // NOTE: decompress
     if (length != sizeof(Chunk)){
         std::cerr << "Unexpected chunk size: " << length << " ... terminating" << std::endl;
-        return;
+        return nullptr;
     }
 
     auto chunk = std::make_unique<Chunk>();
@@ -91,6 +90,7 @@ std::unique_ptr<Chunk> ChunkManager::load(int x, int z){
 
 bool ChunkManager::setChunkDir(const std::string& chunkDir){
     ChunkManager::chunkDir = chunkDir;
+    return true;
 }
 
 std::string ChunkManager::getFileName(int x, int z) {
@@ -116,12 +116,14 @@ bool ChunkManager::write(int x, int z, std::vector<idType>& chunkData){
     if (filePath.empty()) {
         std::cerr << "File " << filePath.string() << " is empty ... cannot render chunk " <<
         chunk_x << ", " << chunk_z << std::endl;
-        return;
+        return false;
     }
 
     std::ofstream file(filePath, std::ios::binary | std::ios::out | std::ios::in);
     if (!file){
         std::cerr << "Failed to open file " << filePath.string() << std::endl;
-        return;
+        return false;
     }
+
+    return true;
 }
