@@ -1,4 +1,4 @@
-#include "resource.h"
+#include <resource.h>
 
 std::unordered_map<ResourceManager::ResourceID, Shader> ResourceManager::shaders;
 std::unordered_map<ResourceManager::ResourceID, Texture> ResourceManager::textures;

@@ -2,13 +2,13 @@
 #include <mesh.h>
 #include <utility>
 
-PrimitiveMesh::PrimitiveMesh(std::vector<PrimitiveVertex> vertices)
+PrimitiveMesh::PrimitiveMesh(std::vector<PrimitiveVertex>& vertices)
     : vertices(std::move(vertices)){
     setup();
 }
 
-PrimitiveMesh::PrimitiveMesh(std::vector<PrimitiveVertex> vertices,
-	std::vector<unsigned int> indices): vertices(std::move(vertices)), indices(std::move(indices)) {
+PrimitiveMesh::PrimitiveMesh(std::vector<PrimitiveVertex>& vertices,
+	std::vector<unsigned int>& indices): vertices(std::move(vertices)), indices(std::move(indices)) {
 	elementDraw = true;
 	setup();
 }
@@ -75,14 +75,13 @@ void PrimitiveMesh::setElementDraw(bool flag) {
 }
 
 
-
-TextureMesh::TextureMesh(std::vector<TextureVertex> vertices)
+TextureMesh::TextureMesh(std::vector<TextureVertex>& vertices)
     : vertices(std::move(vertices)){
     setup();
 }
 
-TextureMesh::TextureMesh(std::vector<TextureVertex> vertices,
-	std::vector<unsigned int> indices): vertices(std::move(vertices)), indices(std::move(indices)) {
+TextureMesh::TextureMesh(std::vector<TextureVertex>& vertices,
+	std::vector<unsigned int>& indices): vertices(std::move(vertices)), indices(std::move(indices)) {
 	elementDraw = true;
 	setup();
 }

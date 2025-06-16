@@ -11,5 +11,6 @@
 
 #define LAMP_FRAG_SHADER "assets/shaders/lamp.fs"
 
-#define BLOCK_TEXTURE "assets/textures/block.png"
-#define SURFACE_TEXTURE "assets/textures/surface.png"
+#define TEXTURE_DIR "assets/textures"
+
+#define CHUNK_DIR "assets/chunks"

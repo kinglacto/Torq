@@ -13,11 +13,9 @@
 #include "src/IO/mouse.h"
 #include "src/IO/screen.h"
 
-#include "src/graphics/models/sphere.h"
 #include "src/graphics/models/cube.h"
-#include "src/graphics/models/lamp.h"
 
-#include "src/resources/resource.h"
+#include <resource.h>
 
 #include "assets.h"
 
@@ -65,8 +63,7 @@ int main(){
 	ResourceManager resource{};
 
 	resource.LoadShader(BASIC_TEXTURE_VERTEX_SHADER, BASIC_TEXTURE_FRAG_SHADER, 0);
-	resource.LoadTexture(BLOCK_TEXTURE, 0);
-	resource.LoadTexture(SURFACE_TEXTURE, 1);
+	resource.LoadTexture(TEXTURE_DIR, 0);
 
 	Shader* shader = resource.GetShader(0);
 	shader->activate();
@@ -133,7 +130,7 @@ void processInput() {
 	mouse_dy = mouse::getDY();
 
 	if (mouse_dx != 0 || mouse_dy != 0) {
-		if (mouse::button(GLFW_MOUSE_BUTTON_LEFT) || keyboard::key(GLFW_KEY_W) || keyboard::key(GLFW_KEY_S)) camera.updateCameraDirection(mouse_dx, mouse_dy);
+		if (mouse::button(GLFW_MOUSE_BUTTON_LEFT)) camera.updateCameraDirection(mouse_dx, mouse_dy);
 	}
 
 	mouse_scroll = mouse::getScrollDY();

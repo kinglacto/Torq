@@ -6,34 +6,14 @@ Cube::Cube(const glm::vec3 pos, const glm::vec3 size, Shader* shader, Texture* t
 	curr = position;
 }
 
-Cube::Cube(const glm::vec3 pos, const glm::vec3 size, Shader* shader, Texture* texture, 
-	const Material& material):
-	size(size), position(pos), shader(shader), texture(texture), material{material} {
-	curr = position;
-	using_material = true;
-}
-
 Cube::Cube(const glm::vec3 pos, const glm::vec3 size) :
 	size(size), position(pos){
 	curr = position;
 }
 
-Cube::Cube(const glm::vec3 pos, const glm::vec3 size, const Material& material) :
-	size(size), position(pos), material{material}{
-	curr = position;
-	using_material = true;
-}
-
-
 Cube::Cube(const glm::vec3 pos, const float size, Shader* shader, Texture* texture):
 	size(glm::vec3(size)), position(pos), shader(shader), texture(texture) {
 	curr = position;
-}
-
-Cube::Cube(const glm::vec3 pos, const float size, Shader* shader, Texture* texture, const Material& material):
-	size(glm::vec3(size)), position(pos), shader(shader), texture(texture), material(material){
-	curr = position;
-	using_material = true;
 }
 
 Cube::Cube(const glm::vec3 pos, const float size) :
@@ -41,20 +21,23 @@ Cube::Cube(const glm::vec3 pos, const float size) :
 	curr = position;
 }
 
-Cube::Cube(const glm::vec3 pos, const float size, const Material& material) :
-	size(glm::vec3(size)), position(pos), material(material){
-	curr = position;
-	using_material = true;
-}
-
 Cube::~Cube() = default;
 
 void Cube::init() {
 	model = glm::mat4(1.0f);
 	int noVertices = 36;
+	glm::vec4 a = texture->uvMap[texMap::block];
+	float bu = a.x;
+	float bv = a.y;
+
+	float cu = a.z;
+	float cv = a.w;
+
+	float width = cu - bu;
+	float height = cv - bv;
 
     float v[] = {
-        -0.5f, -0.5f, -0.5f,     0.0f,  0.0f, -1.0f,    0.0f, 0.0f,
+        	-0.5f, -0.5f, -0.5f,     0.0f,  0.0f, -1.0f,    0.0f, 0.0f,
              0.5f, -0.5f, -0.5f,     0.0f,  0.0f, -1.0f,    1.0f, 0.0f,
              0.5f,  0.5f, -0.5f,     0.0f,  0.0f, -1.0f,    1.0f, 1.0f,
              0.5f,  0.5f, -0.5f,     0.0f,  0.0f, -1.0f,    1.0f, 1.0f,
@@ -103,7 +86,7 @@ void Cube::init() {
 		int base = i * 8;
 		vertices[i].pos   = glm::vec3(v[base], v[base+1], v[base+2]);
 		vertices[i].normal = glm::vec3(v[base+3], v[base+4], v[base+5]);
-		vertices[i].tex = glm::vec2(v[base+6], v[base + 7]);
+		vertices[i].tex = glm::vec2(bu + v[base+6] * width, bv + v[base + 7] * height);
 	}
 	meshes.push_back(TextureMesh(vertices));
 }
@@ -122,12 +105,6 @@ void Cube::render() {
 
 	model = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), size);
 	shader->setMat4("model", model);
-	if (using_material){
-		shader->set3Float("material.ambient", material.ambient);
-		shader->set3Float("material.diffuse", material.diffuse);
-		shader->set3Float("material.specular", material.specular);
-		shader->setFloat("material.shininess", material.shininess);
-	}
 
 	renderAll();
 }
@@ -160,12 +137,4 @@ bool Cube::setSize(const glm::vec3 size) {
 
 void Cube::setPosition(const glm::vec3 pos) {
 	position = pos;
-}
-
-void Cube::setMaterial(const Material& material){
-	Cube::material = material;
-}
-
-void Cube::useMaterial(bool flag){
-	using_material = flag;
 }

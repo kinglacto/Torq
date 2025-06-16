@@ -13,13 +13,12 @@ add_executable(OpenGL
         src/IO/screen.cpp
         src/graphics/mesh.cpp
         src/graphics/model.cpp
-        src/graphics/models/sphere.cpp
+        src/graphics/material.cpp
         src/graphics/texture.cpp
         src/graphics/stb.cpp
         src/graphics/models/cube.cpp
-        src/graphics/material.cpp
-        src/graphics/models/lamp.cpp
         src/resources/resource.cpp
+        src/resources/chunk_management.cpp
 )
 
 find_package(OpenGL REQUIRED)

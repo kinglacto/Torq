@@ -14,8 +14,8 @@ private:
 	unsigned int VAO{0}, VBO{0}, EBO{0};
 public:
 	PrimitiveMesh() = default;
-	explicit PrimitiveMesh(std::vector<PrimitiveVertex> vertices);
-	PrimitiveMesh(std::vector<PrimitiveVertex> vertices, std::vector<unsigned int> indices);
+	explicit PrimitiveMesh(std::vector<PrimitiveVertex>& vertices);
+	PrimitiveMesh(std::vector<PrimitiveVertex>& vertices, std::vector<unsigned int>& indices);
 
 	~PrimitiveMesh() = default;
 
@@ -33,8 +33,8 @@ private:
 	unsigned int VAO{0}, VBO{0}, EBO{0};
 public:
 	TextureMesh() = default;
-	explicit TextureMesh(std::vector<TextureVertex> vertices);
-	TextureMesh(std::vector<TextureVertex> vertices, std::vector<unsigned int> indices);
+	explicit TextureMesh(std::vector<TextureVertex>& vertices);
+	TextureMesh(std::vector<TextureVertex>& vertices, std::vector<unsigned int>& indices);
 
 	~TextureMesh() = default;
 

@@ -2,6 +2,6 @@
 /cmake-build-debug
 .clang-format
 /.vscode
-/src/notes
+/notes
 .idea
 OpenGL
