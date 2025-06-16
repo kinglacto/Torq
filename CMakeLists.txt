@@ -18,20 +18,10 @@ add_subdirectory(lib/glm)
 add_subdirectory(lib/stb_image)
 add_subdirectory(lib/glfw)
 
+file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 add_executable(torq
         main.cpp
-        src/graphics/shader.cpp
-        src/IO/keyboard.cpp
-        src/IO/mouse.cpp
-        src/IO/camera.cpp
-        src/IO/screen.cpp
-        src/graphics/mesh.cpp
-        src/graphics/model.cpp
-        src/graphics/material.cpp
-        src/graphics/texture.cpp
-        src/graphics/models/cube.cpp
-        src/resources/resource.cpp
-        src/resources/chunk_management.cpp
+        ${MY_SOURCES}
 )
 
 set_target_properties(torq
@@ -44,7 +34,6 @@ find_package(OpenGL REQUIRED)
 
 include_directories(include)
 target_link_libraries(torq
-    ${GLM_LIBRARY}
     OpenGL::GL
     glfw
     glad
