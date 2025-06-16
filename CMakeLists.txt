@@ -7,9 +7,16 @@ list(APPEND
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+
 add_subdirectory(lib/glad)
 add_subdirectory(lib/glm)
 add_subdirectory(lib/stb_image)
+add_subdirectory(lib/glfw)
 
 add_executable(torq
         main.cpp
@@ -34,13 +41,12 @@ set_target_properties(torq
 )
 
 find_package(OpenGL REQUIRED)
-find_package(GLFW3 REQUIRED)
 
 include_directories(include)
 target_link_libraries(torq
-    ${GLFW3_LIBRARY}
     ${GLM_LIBRARY}
     OpenGL::GL
+    glfw
     glad
     glm
     stb_image
