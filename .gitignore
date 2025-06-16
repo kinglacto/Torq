@@ -2,6 +2,9 @@
 /cmake-build-debug
 .clang-format
 /.vscode
-/notes
-.idea
-OpenGL
+/src/notes
+.idea/
+.git/
+.cache
+.git/
+torq

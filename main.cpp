@@ -13,6 +13,7 @@
 #include "src/IO/mouse.h"
 #include "src/IO/screen.h"
 
+// #include "src/graphics/models/sphere.h"
 #include "src/graphics/models/cube.h"
 
 #include <resource.h>
@@ -50,7 +51,7 @@ int main(){
 		return -1;
 	}
 
-	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+	if (!gladLoadGL(reinterpret_cast<GLADloadfunc>(glfwGetProcAddress)))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
