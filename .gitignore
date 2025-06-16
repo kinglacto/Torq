@@ -2,9 +2,9 @@
 /cmake-build-debug
 .clang-format
 /.vscode
-/notes
 .idea/
 .git/
 .cache
 .git/
 torq
+notes/
