@@ -3,5 +3,8 @@
 .clang-format
 /.vscode
 /src/notes
-.idea
-OpenGL
+.idea/
+.git/
+.cache
+.git/
+torq
