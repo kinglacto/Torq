@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -19,6 +20,8 @@
 #include <resource.h>
 
 #include "assets.h"
+#include "stb_image_write.h"
+#include "worldgen.hpp"
 
 #include <shader.h>
 #include <texture.h>
@@ -43,6 +46,7 @@ double mouse_dy;
 double mouse_scroll;
 
 int main(){
+    std::srand(std::time(0));
 	init();
 
 	if (!screen.init()) {
@@ -79,7 +83,9 @@ int main(){
 
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
-
+    
+    Terrain terrain(1024, 1024, 123456);
+    std::vector<std::vector<float>> textureMap = terrain.genMap();
 
 	while (!screen.shouldClose()) {
 		auto currentFrame = static_cast<float>(glfwGetTime());

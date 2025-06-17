@@ -7,4 +7,5 @@
 .cache
 .git/
 torq
+*.png
 notes/

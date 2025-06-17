@@ -17,6 +17,7 @@ add_subdirectory(lib/glad)
 add_subdirectory(lib/glm)
 add_subdirectory(lib/stb_image)
 add_subdirectory(lib/glfw)
+add_subdirectory(lib/noise)
 
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 add_executable(torq
@@ -32,11 +33,12 @@ set_target_properties(torq
 
 find_package(OpenGL REQUIRED)
 
-include_directories(include)
-target_link_libraries(torq
+target_include_directories(torq PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_link_libraries(torq PRIVATE
     OpenGL::GL
     glfw
     glad
     glm
     stb_image
+    noise
 )
