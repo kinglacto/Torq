@@ -7,9 +7,19 @@ list(APPEND
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_subdirectory(lib/glad)
-add_subdirectory(lib/stb_image)
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
+add_subdirectory(lib/glad)
+add_subdirectory(lib/glm)
+add_subdirectory(lib/stb_image)
+add_subdirectory(lib/glfw)
+add_subdirectory(lib/noise)
+
+file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 add_executable(torq
         main.cpp
         src/graphics/shader.cpp
@@ -25,6 +35,7 @@ add_executable(torq
         src/resources/resource.cpp
         src/resources/chunk_management.cpp
         src/resources/chunk_mesh.cpp
+        ${MY_SOURCES}
 )
 
 set_target_properties(torq
@@ -38,12 +49,13 @@ find_package(GLFW3 REQUIRED)
 find_package(GLM REQUIRED)
 find_package(ZLIB REQUIRED)
 
-include_directories(include)
-target_link_libraries(torq
-    ${GLFW3_LIBRARY}
-    ${GLM_LIBRARY}
+target_include_directories(torq PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_link_libraries(torq PRIVATE
     OpenGL::GL
+    glfw
     glad
+    glm
     stb_image
     ZLIB::ZLIB
+    noise
 )
