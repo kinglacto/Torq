@@ -49,8 +49,10 @@ find_package(GLFW3 REQUIRED)
 find_package(GLM REQUIRED)
 find_package(ZLIB REQUIRED)
 
-target_include_directories(torq PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries(torq PRIVATE
+include_directories(include)
+target_link_libraries(torq
+    ${GLFW3_LIBRARY}
+    ${GLM_LIBRARY}
     OpenGL::GL
     glfw
     glad
