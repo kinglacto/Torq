@@ -2,7 +2,8 @@
 #define CHUNK_MANAGEMENT_H
 
 #include "chunk.h"
-#include "precision.h"
+#include "chunk_mesh.h"
+#include "chunk_utility.h"
 #include <string>
 #include <memory>
 #include <map>
@@ -10,17 +11,33 @@
 #include <vector>
 
 class ChunkManager{
+    size_t header_size;
     std::string chunkDir;
-    bool regionFileExists(int x, int z);
+    ChunkErrorCode createRegionFile(int x, int z);
     std::map<std::pair<int, int>, bool>regionFileCache;
+    std::map<std::pair<int, int>, std::unique_ptr<ChunkMesh>> staticChunkMeshes;
+    std::map<std::pair<int, int>, std::unique_ptr<ChunkMesh>> activeChunkMeshes;
 public:
+
     ChunkManager(const std::string& chunkDir);
-    std::unique_ptr<Chunk> load(int x, int z);
-    bool write(int x, int z, std::vector<idType>& chunkData);
-    bool setChunkDir(const std::string& chunkDir);
+    ChunkErrorCode cacheRegionFile(int region_x, int region_z);
 
-    std::string getFileName(int chunk_x, int chunk_z);
+    ChunkMesh* getChunkMesh(int chunk_x, int chunk_z);
+    ChunkErrorCode deleteChunkMesh(int chunk_x, int chunk_z);
+    ChunkErrorCode loadChunkMesh(int chunk_x, int chunk_z, bool setActive);
+
+    ChunkMesh* getActiveChunkMesh(int chunk_x, int chunk_z);
+    ChunkErrorCode deleteActiveChunkMesh(int chunk_x, int chunk_z);
+
+    ChunkMesh* getStaticChunkMesh(int chunk_x, int chunk_z);
+    ChunkErrorCode deleteStaticChunkMesh(int chunk_x, int chunk_z);
+
+    void getRegionCoordsFromChunkCoords(int chunk_x, int chunk_z, int* region_x, int* region_z);
+    void getChunkCoordsFromWorldCoords(int world_x, int world_z, int* chunk_x, int* chunk_z);
+    void getRegionCoordsFromWorldCoords(int world_x, int world_z, int* region_x, int* region_z);
+
+    ChunkErrorCode setChunkDir(const std::string& chunkDir);
+    std::string getRegionFileName(int region_x, int region_z);
 };  
-
 
 #endif

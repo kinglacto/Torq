@@ -24,6 +24,7 @@ add_executable(torq
         src/graphics/models/cube.cpp
         src/resources/resource.cpp
         src/resources/chunk_management.cpp
+        src/resources/chunk_mesh.cpp
 )
 
 set_target_properties(torq
@@ -35,6 +36,7 @@ set_target_properties(torq
 find_package(OpenGL REQUIRED)
 find_package(GLFW3 REQUIRED)
 find_package(GLM REQUIRED)
+find_package(ZLIB REQUIRED)
 
 include_directories(include)
 target_link_libraries(torq
@@ -43,4 +45,5 @@ target_link_libraries(torq
     OpenGL::GL
     glad
     stb_image
+    ZLIB::ZLIB
 )

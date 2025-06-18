@@ -1,7 +1,7 @@
 #ifndef TEXTURE_HASH
 #define TEXTURE_HASH
 
-#include "precision.h"
+#include "chunk_utility.h"
 
 enum texMap: idType {
     block,
