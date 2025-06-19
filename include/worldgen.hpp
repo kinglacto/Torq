@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <stdint.h>
 #include <vector>
+#include <chunk_utility.h>
 #include <PerlinNoise.hpp>
 
 typedef struct PixelColor {
@@ -41,6 +42,8 @@ public:
     
     Terrain(uint64_t _size_x, uint64_t _size_z, seed_t _masterSeed);
     float getHeight(uint64_t x, uint64_t z);
-    std::vector<std::vector<float>> genMap();
+    void genMap();
+
+    void getChunkData(ChunkData* chunk);
 };
 

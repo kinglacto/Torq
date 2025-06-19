@@ -265,6 +265,5 @@ ChunkErrorCode ChunkLoader::setChunkDir(const std::string& chunkDir){
 
 std::string ChunkLoader::getRegionFileName(int region_x, int region_z){
     if (chunkDir.empty()) return "";
-    return chunkDir + std::string("/c.") + std::to_string(region_x) + std::string(".")
-     + std::to_string(region_z) + std::string(".region");
+    return chunkDir + "/c." + std::to_string(region_x) + "." + std::to_string(region_z) + ".region";
 }

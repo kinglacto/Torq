@@ -1,6 +1,8 @@
 #include <cstdint>
+#include <iostream>
 #include <worldgen.hpp>
 #include <stdint.h>
+#include "chunk_utility.h"
 #include "stb_image_write.h"
 #include <vector>
 #include <PerlinNoise.hpp>
@@ -23,6 +25,8 @@ float Noise::get2D(uint64_t x, uint64_t y) {
 }
 
 Terrain::Terrain(uint64_t _size_x, uint64_t _size_z, seed_t _masterSeed) {
+    if ((_size_x % CHUNKS_PER_REGION_SIDE != 0) || (_size_z % CHUNKS_PER_REGION_SIDE != 0))
+        return;
     size_x = _size_x;
     size_z = _size_z;
     masterSeed = _masterSeed;
@@ -52,19 +56,37 @@ float Terrain::getHeight(uint64_t x, uint64_t z) {
     return finalValue;
 }
 
-std::vector<std::vector<float>> Terrain::genMap() {
-    std::vector<std::vector<float>> heights;
+void Terrain::genMap() {
+    heightMap.clear();
     uint8_t pixels[size_x * size_z * 3];
+    std::vector<float> row;
     for (int i = 0; i < size_z; i++) {
-        std::vector<float> row;
         for (int j = 0; j < size_x; j++) {
             float noise = getHeight(i, j);
             row.push_back(noise);
             int offset = 3 * (size_x * i + j);
             pixels[offset] = pixels[offset + 1] = pixels[offset + 2] = static_cast<int>(noise * 255);
         }
-        heights.push_back(row);
+        heightMap.push_back(row);
+        row.clear();
     }
     stbi_write_png("terrainMap.png", size_x, size_z, 3, pixels, size_x * 3);
-    return heights;
+}
+
+void Terrain::getChunkData(ChunkData* chunk) {
+    if (heightMap.empty())
+        return;
+    struct blockData Stone;
+    Stone.id = 1;
+    struct blockData Air;
+    Air.id = 0;
+    for (uint32_t x = 0; x < BLOCK_X_SIZE; x++) {
+        for (uint32_t y = 0; y < BLOCK_Y_SIZE; y++) {
+            for (uint32_t z = 0; z < BLOCK_Z_SIZE; z++) {
+                uint32_t surfaceHeight = static_cast<uint32_t>(heightMap[x][z] * BLOCK_Y_SIZE);
+                std::cout << x << ", " << z << " : " << surfaceHeight << std::endl;
+                chunk->blocks[y][x][z] = y > surfaceHeight ? Air : Stone;
+            }
+        }
+    }
 }

@@ -88,19 +88,15 @@ int main(){
 	glm::mat4 projection = glm::mat4(1.0f);
 
 	auto chunkLoader = std::make_shared<ChunkLoader>(std::string(CHUNK_DIR));
-
+    
+    std::srand(std::time(0));
+    Terrain terrain(1024, 1024, std::rand() % 10000);
 	ChunkData* data = new ChunkData;
-	data->x = 0;
-	data->z = 0;
-	blockData solid = {1};
-	blockData air = {0};
-	for (int y = 0; y < BLOCK_Y_SIZE; y++){
-		for(int x = 0; x < BLOCK_X_SIZE; x++){
-			for(int z = 0; z < BLOCK_Z_SIZE; z++){
-				data->blocks[y][x][z] = solid;
-			}
-		}
-	}
+    terrain.genMap();
+    terrain.getChunkData(data);
+
+    camera.cameraPos += glm::vec3(0, 256, 0);
+    
 
 	std::cout << "made chunk..." << std::endl;
 	chunkLoader->writeChunk(data);
@@ -135,7 +131,7 @@ int main(){
 		//model.render();
 		screen.newFrame();
 		double fps = 1/(double) deltaTime;
-		std::cout << fps << std::endl;
+		// std::cout << fps << std::endl;
 	}
 
 	//model.cleanup();
