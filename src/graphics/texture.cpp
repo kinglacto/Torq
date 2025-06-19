@@ -7,12 +7,13 @@
 #include <algorithm>
 #include <cmath>
 #include <string.h>
+#include <assets.h>
 
 #include <stb_image_write.h>
 
 namespace fs = std::filesystem;
 
-Texture::Texture(const std::string& texturePath) {
+Texture::Texture(const std::string& texturePath): id{0} {
 	setup(texturePath);
 }
 
@@ -106,14 +107,16 @@ void Texture::setup(const std::string& texturePath) {
 		std::cerr << "Error in loading asset" << std::endl;
 	}
 
-	stbi_write_png("atlas_output.png", atlasSize, atlasSize, nrChannels, atlas, atlasSize * nrChannels);
+	std::string saveFilePath = ATLAS_DIR + std::string("/atlas_output.png");
+	stbi_write_png(saveFilePath.c_str(), atlasSize, atlasSize, nrChannels, atlas, atlasSize * nrChannels);
 	for(auto t: textures){
 		stbi_image_free(t.data);
 	}
+
 	free(atlas);
 }
 
-bool Texture::activate(unsigned int unitIndex){
+bool Texture::activateAt(unsigned int unitIndex){
 	GLenum unitEnum = GL_TEXTURE0 + unitIndex;
 	glActiveTexture(unitEnum);
 

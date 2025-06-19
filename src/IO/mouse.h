@@ -1,5 +1,4 @@
-#ifndef MOUSE_H
-#define MOUSE_H
+#pragma once
 
 #include <GLFW/glfw3.h>
 
@@ -39,5 +38,3 @@ private:
     static bool buttons[];
     static bool buttonsChanged[];
 };
-
-#endif //MOUSE_H

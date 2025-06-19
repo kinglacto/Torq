@@ -1,5 +1,4 @@
-#ifndef SHADER_H
-#define SHADER_H
+#pragma once
 
 #include <glad/glad.h>
 #include <cstdlib>
@@ -34,5 +33,3 @@ public:
 
 	[[nodiscard]] unsigned int getId() const;
 };
-
-#endif //SHADER_H

@@ -1,5 +1,4 @@
-#ifndef RESOURCE_H
-#define RESOURCE_H
+#pragma once
 
 // To Do: create an asset pipeline that stores paths to shaders/textures in a json file and dynamically
 // generates enum classes with the appropriate names at runtime. 
@@ -32,5 +31,3 @@ private:
     static std::unordered_map<ResourceID, Shader> shaders;
     static std::unordered_map<ResourceID, Texture> textures;
 };
-
-#endif 

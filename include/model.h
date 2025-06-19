@@ -1,5 +1,4 @@
-#ifndef MODEL_H
-#define MODEL_H
+#pragma once
 
 #include <vector>
 #include "mesh.h"
@@ -22,4 +21,3 @@ public:
 	void cleanup();
 };
 
-#endif //MODEL_H

@@ -1,5 +1,4 @@
-#ifndef MESH_H
-#define MESH_H
+#pragma once
 
 #include <vector>
 #include "shader.h"
@@ -11,7 +10,7 @@ private:
 	bool elementDraw {false};
 	std::vector<PrimitiveVertex> vertices;
 	std::vector<unsigned int> indices;
-	unsigned int VAO{0}, VBO{0}, EBO{0};
+	unsigned int VAO, VBO, EBO;
 public:
 	PrimitiveMesh() = default;
 	explicit PrimitiveMesh(std::vector<PrimitiveVertex>& vertices);
@@ -30,7 +29,7 @@ private:
 	bool elementDraw {false};
 	std::vector<TextureVertex> vertices;
 	std::vector<unsigned int> indices;
-	unsigned int VAO{0}, VBO{0}, EBO{0};
+	unsigned int VAO, VBO, EBO;
 public:
 	TextureMesh() = default;
 	explicit TextureMesh(std::vector<TextureVertex>& vertices);
@@ -43,5 +42,3 @@ public:
 	void setup();
 	void setElementDraw(bool flag);
 };
-
-#endif //MESH_H

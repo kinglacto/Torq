@@ -3,22 +3,18 @@
 
 Cube::Cube(const glm::vec3 pos, const glm::vec3 size, Shader* shader, Texture* texture):
 	size(size), position(pos), shader(shader), texture(texture) {
-	curr = position;
 }
 
 Cube::Cube(const glm::vec3 pos, const glm::vec3 size) :
-	size(size), position(pos){
-	curr = position;
+	size(size), position(pos), shader{nullptr}, texture{nullptr}{
 }
 
 Cube::Cube(const glm::vec3 pos, const float size, Shader* shader, Texture* texture):
 	size(glm::vec3(size)), position(pos), shader(shader), texture(texture) {
-	curr = position;
 }
 
 Cube::Cube(const glm::vec3 pos, const float size) :
-	size(glm::vec3(size)), position(pos){
-	curr = position;
+	size(glm::vec3(size)), position(pos), shader{nullptr}, texture{nullptr}{
 }
 
 Cube::~Cube() = default;

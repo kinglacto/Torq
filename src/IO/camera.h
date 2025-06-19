@@ -1,5 +1,4 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -42,11 +41,9 @@ public:
 	double pitch;
 	double sensitivity;
 
-	float znear = 1.0f;
-	float zfar = 4000.0f;
+	float znear;
+	float zfar;
 
-	double deltaTime = 0;
+	double deltaTime;
 	float speed;
 };
-
-#endif //CAMERA_H

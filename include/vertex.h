@@ -1,6 +1,4 @@
-#ifndef VERTEX_H
-#define VERTEX_H
-
+#pragma once
 #include <glm/glm.hpp>
 
 struct PrimitiveVertex {
@@ -13,5 +11,3 @@ struct TextureVertex {
 	glm::vec3 normal;
 	glm::vec2 tex;
 };
-
-#endif //VERTEX_H

@@ -1,5 +1,5 @@
-#ifndef CHUNK_UTILITY_H
-#define CHUNK_UTILITY_H
+#pragma once
+
 #include <cstdint>
 
 using idType = uint8_t;
@@ -20,10 +20,26 @@ enum ChunkErrorCode{
     CHUNK_EMPTY,
     CHUNK_CORRUPTED,
     CHUNK_NOT_FOUND,
+    CHUNK_NOT_ACTIVE,
+    CHUNK_MESH_CORRUPTED,
     HEADER_CORRUPTED,
     FILE_ERROR,
     COMPRESSION_ERROR,
     DIRECTORY_CREATION_FAILED
+};
+
+struct HeaderEntry{
+    chunk_header_offset_type offset; 
+    chunk_header_length_type length;
+};
+
+struct blockData{
+    idType id;
+};
+
+struct ChunkData{
+    int x, z;
+    blockData blocks[BLOCK_Y_SIZE][BLOCK_X_SIZE][BLOCK_Z_SIZE];
 };
 
 enum blockDirectionIndex{
@@ -35,9 +51,27 @@ enum blockDirectionIndex{
     top
 };
 
-inline float blockVertices[6][48] = {
+inline const int neighbor_offsets[6][3] = {
+    { 0, 0,-1},  // Front
+    { 0, 0, 1},  // Back
+    {-1, 0, 0},  // Left
+    { 1, 0, 0},  // Right
+    { 0,-1, 0},  // Bottom
+    { 0, 1, 0}   // Top
+};
+
+inline const float blockVertices[6][48] = {
     // as seen down onto the x-z plane
-    // up
+/*
+    -z
+    |
+    |
+    |_______ +x
+
+    up is towards you, +ve Y axis
+    down is away from you, -ve Y axis
+*/
+    // Front
     {
         -0.5f, -0.5f, -0.5f,     0.0f,  0.0f, -1.0f,    0.0f, 0.0f,
          0.5f, -0.5f, -0.5f,     0.0f,  0.0f, -1.0f,    1.0f, 0.0f,
@@ -47,7 +81,7 @@ inline float blockVertices[6][48] = {
         -0.5f, -0.5f, -0.5f,     0.0f,  0.0f, -1.0f,    0.0f, 0.0f,
     },
 
-    // down
+    // Back
     {
         -0.5f, -0.5f,  0.5f,     0.0f,  0.0f,  1.0f,    0.0f, 0.0f,
          0.5f, -0.5f,  0.5f,     0.0f,  0.0f,  1.0f,    1.0f, 0.0f,
@@ -57,7 +91,7 @@ inline float blockVertices[6][48] = {
         -0.5f, -0.5f,  0.5f,     0.0f,  0.0f,  1.0f,    0.0f, 0.0f,
     },
 
-    // left
+    // Left
     {
         -0.5f,  0.5f,  0.5f,    -1.0f,  0.0f,  0.0f,    0.0f, 1.0f,
         -0.5f,  0.5f, -0.5f,    -1.0f,  0.0f,  0.0f,    1.0f, 1.0f,
@@ -67,7 +101,7 @@ inline float blockVertices[6][48] = {
         -0.5f,  0.5f,  0.5f,    -1.0f,  0.0f,  0.0f,    0.0f, 1.0f,
     },
 
-    // right
+    // Right
     {
          0.5f,  0.5f,  0.5f,     1.0f,  0.0f,  0.0f,    0.0f, 1.0f,
          0.5f,  0.5f, -0.5f,     1.0f,  0.0f,  0.0f,    1.0f, 1.0f,
@@ -77,7 +111,7 @@ inline float blockVertices[6][48] = {
          0.5f,  0.5f,  0.5f,     1.0f,  0.0f,  0.0f,    0.0f, 1.0f,
     },
 
-    // bottom
+    // Bottom
     {
         -0.5f, -0.5f, -0.5f,     0.0f, -1.0f,  0.0f,    0.0f, 1.0f,
          0.5f, -0.5f, -0.5f,     0.0f, -1.0f,  0.0f,    1.0f, 1.0f,
@@ -87,7 +121,7 @@ inline float blockVertices[6][48] = {
         -0.5f, -0.5f, -0.5f,     0.0f, -1.0f,  0.0f,    0.0f, 1.0f,
     },
 
-    // top
+    // Top
     {
         -0.5f,  0.5f, -0.5f,     0.0f,  1.0f,  0.0f,    0.0f, 1.0f,
          0.5f,  0.5f, -0.5f,     0.0f,  1.0f,  0.0f,    1.0f, 1.0f,
@@ -97,5 +131,3 @@ inline float blockVertices[6][48] = {
         -0.5f,  0.5f, -0.5f,     0.0f,  1.0f,  0.0f,    0.0f, 1.0f
     }
 };
-
-#endif

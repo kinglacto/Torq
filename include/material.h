@@ -1,5 +1,4 @@
-#ifndef MATERIAL_H
-#define MATERIAL_H
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -46,5 +45,3 @@ struct Material {
     // function to mix two materials with a proportion
     static Material mix(Material m1, Material m2, float mix = 0.5f);
 };
-
-#endif

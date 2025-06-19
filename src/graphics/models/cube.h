@@ -1,5 +1,4 @@
-#ifndef CUBE_H
-#define CUBE_H
+#pragma once
 
 #include <model.h>
 #include <vertex.h>
@@ -8,18 +7,17 @@
 
 class Cube: public TextureModel {
 protected:
-	glm::vec3 size{glm::vec3(100.0f, 100.0f, 100.0f)};
-	glm::vec3 curr{};
+	glm::vec3 size;
 
-	Shader* shader{nullptr};
-	Texture* texture{nullptr};
+	Shader* shader;
+	Texture* texture;
 
 	std::vector<TextureVertex> vertices;
 	std::vector<unsigned int> indices;
 
 public:
-	glm::vec3 position{glm::vec3(0.0f, 0.0f, 0.0f)};
-	glm::mat4 model{glm::mat4(1.0f)};
+	glm::vec3 position;
+	glm::mat4 model;
 	Cube(glm::vec3 pos, glm::vec3 size, Shader* shader, Texture* texture);
 	Cube(glm::vec3 pos, glm::vec3 size);
 
@@ -37,7 +35,3 @@ public:
 	void setShader(Shader* shader);
 	void setTexture(Texture* texture);
 };
-
-
-
-#endif //CUBE_H

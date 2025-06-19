@@ -1,5 +1,4 @@
-#ifndef TEXTURE_HASH
-#define TEXTURE_HASH
+#pragma once
 
 #include "chunk_utility.h"
 
@@ -7,5 +6,3 @@ enum texMap: idType {
     block,
     surface
 };
-
-#endif

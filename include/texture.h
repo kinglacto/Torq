@@ -1,5 +1,4 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#pragma once
 
 #include <glad/glad.h>
 #include <stb_image.h>
@@ -27,14 +26,14 @@ public:
 
 private:
 	std::vector<Tex> textures;
-	unsigned int id{0};
-	unsigned int texture_unit{};
+	unsigned int id;
+	unsigned int texture_unit;
 	void setup(const std::string& texturePath);
 	void loadTextures(const std::string& texturePath);
 public:
 	Texture(const std::string& texturePath);
 	~Texture();
-	bool activate(unsigned int unit);
+	bool activateAt(unsigned int unit);
 	[[nodiscard]] unsigned int getId() const;
 	[[nodiscard]] unsigned int getUnit() const;
 	void cleanup();
@@ -44,7 +43,3 @@ public:
 	void set_mag_filter(GLint param);
 	void set_min_filter(GLint param);
 };
-
-
-
-#endif //TEXTURE_H

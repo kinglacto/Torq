@@ -19,12 +19,15 @@
 
 #include <resource.h>
 
-#include "assets.h"
-#include "stb_image_write.h"
-#include "worldgen.hpp"
+#include <assets.h>
+#include <stb_image_write.h>
+#include <worldgen.hpp>
 
 #include <shader.h>
 #include <texture.h>
+
+#include <chunk_loader.h>
+#include <chunk_renderer.h>
 
 using namespace std;
 
@@ -74,18 +77,42 @@ int main(){
 	shader->activate();
 
 	Texture* texture = resource.GetTexture(0);
-	if (!texture->activate(0)) {
+	if (!texture->activateAt(0)) {
 		std::cerr << "Texture activation failed: " << std::endl;
 	}
 
-	Cube model(glm::vec3(0.0f, 0.0f, 0.0f), 16.0f, shader, texture);
-	model.init();
+	// Cube model(glm::vec3(0.0f, 0.0f, 0.0f), 16.0f, shader, texture);
+	// model.init();
 
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
+
+	auto chunkLoader = std::make_shared<ChunkLoader>(std::string(CHUNK_DIR));
+
+	ChunkData* data = new ChunkData;
+	data->x = 0;
+	data->z = 0;
+	blockData solid = {1};
+	blockData air = {0};
+	for (int y = 0; y < BLOCK_Y_SIZE; y++){
+		for(int x = 0; x < BLOCK_X_SIZE; x++){
+			for(int z = 0; z < BLOCK_Z_SIZE; z++){
+				data->blocks[y][x][z] = solid;
+			}
+		}
+	}
+
+	std::cout << "made chunk..." << std::endl;
+	chunkLoader->writeChunk(data);
+	std::cout << "finished writing..." << std::endl;
+	free(data);
+
+	ChunkRenderer chunkRenderer{};
+	chunkRenderer.chunkLoader = chunkLoader;
+	chunkRenderer.texture = texture;
     
-    Terrain terrain(1024, 1024, 123456);
-    std::vector<std::vector<float>> textureMap = terrain.genMap();
+    // Terrain terrain(1024, 1024, 123456);
+    // std::vector<std::vector<float>> textureMap = terrain.genMap();
 
 	while (!screen.shouldClose()) {
 		auto currentFrame = static_cast<float>(glfwGetTime());
@@ -104,12 +131,14 @@ int main(){
 
 		shader->setMat4("view", view);
 		shader->setMat4("projection", projection);
-
-		model.render();
+		chunkRenderer.update(shader);
+		//model.render();
 		screen.newFrame();
+		double fps = 1/(double) deltaTime;
+		std::cout << fps << std::endl;
 	}
 
-	model.cleanup();
+	//model.cleanup();
 	resource.deleteAll();
 	glfwTerminate();
 	return 0;
@@ -152,5 +181,4 @@ void init() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	//glfwWindowHint(GLFW_SAMPLES, 8);
 }
