@@ -19,6 +19,17 @@ add_subdirectory(lib/stb_image)
 add_subdirectory(lib/glfw)
 add_subdirectory(lib/noise)
 
+if (BUILD_TYPE STREQUAL "Debug")
+    message(STATUS "Building in Debug Mode")
+    add_definitions(-DDEBUG_MODE)
+elseif(BUILD_TYPE STREQUAL "Test")
+    message(STATUS "Building in Test mode")
+    add_definitions(-DTEST_MODE)
+else()
+    message(STATUS "Building in Release mode")
+    add_definitions(-DRELEASE_MODE)
+endif()
+
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 add_executable(torq
         main.cpp
@@ -35,6 +46,7 @@ find_package(OpenGL REQUIRED)
 find_package(ZLIB REQUIRED)
 
 target_include_directories(torq PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_compile_definitions(torq PRIVATE ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets")
 target_link_libraries(torq PRIVATE
     OpenGL::GL
     glfw

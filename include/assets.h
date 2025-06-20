@@ -11,8 +11,6 @@
 #define BASIC_TEXTURE_FRAG_SHADER "assets/shaders/basic_texture.fs"
 #define BASIC_LIGHT_FRAG_SHADER "assets/shaders/basic_light.fs"
 
-#define ASSETS_DIR "assets"
-
 #define LAMP_FRAG_SHADER "assets/shaders/lamp.fs"
 
 #define ATLAS_DIR "assets/atlas"

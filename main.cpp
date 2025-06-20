@@ -49,7 +49,24 @@ double mouse_dy;
 double mouse_scroll;
 
 int main(){
-    std::srand(std::time(0));
+#ifdef TEST_MODE
+    while (true) {
+        seed_t seed;
+        std::cin >> seed;
+        Terrain t(seed);
+        t.genMap();
+        char* args[] = { (char*)"brave" , (char*)t.mapFile.c_str(), NULL };
+        if (fork() == 0) {
+            execvp(args[0], args);
+        }
+        //t.extendMap(512, 512);
+        //if (fork() == 0) {
+        //    execvp(args[0], args);
+        //}
+    }
+    return 0;
+#endif // TEST_MODE
+    
 	init();
 
 	if (!screen.init()) {
@@ -90,13 +107,12 @@ int main(){
 	auto chunkLoader = std::make_shared<ChunkLoader>(std::string(CHUNK_DIR));
     
     std::srand(std::time(0));
-    Terrain terrain(1024, 1024, std::rand() % 10000);
+    Terrain terrain(std::rand() % 10000);
 	ChunkData* data = new ChunkData;
+    data->x = data->z = 0;
     terrain.genMap();
     terrain.getChunkData(data);
 
-    camera.cameraPos += glm::vec3(0, 256, 0);
-    
 
 	std::cout << "made chunk..." << std::endl;
 	chunkLoader->writeChunk(data);
@@ -107,9 +123,6 @@ int main(){
 	chunkRenderer.chunkLoader = chunkLoader;
 	chunkRenderer.texture = texture;
     
-    // Terrain terrain(1024, 1024, 123456);
-    // std::vector<std::vector<float>> textureMap = terrain.genMap();
-
 	while (!screen.shouldClose()) {
 		auto currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;
@@ -131,7 +144,7 @@ int main(){
 		//model.render();
 		screen.newFrame();
 		double fps = 1/(double) deltaTime;
-		// std::cout << fps << std::endl;
+	    // std::cout << fps << std::endl;
 	}
 
 	//model.cleanup();
