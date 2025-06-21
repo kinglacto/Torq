@@ -11,7 +11,7 @@ Terrain::Terrain(seed_t _masterSeed) {
     size_x = 1024;
     size_z = 1024;
     masterSeed = _masterSeed;
-    mapFile = std::string(ASSETS_DIR) + "/maps/terrain-" + std::to_string(masterSeed) + ".png";
+    mapFile = std::string(CACHE_DIR) + "/maps/terrain-" + std::to_string(masterSeed) + ".png";
     
     std::srand(masterSeed);
     seed_t cSeed  = std::rand();

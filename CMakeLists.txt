@@ -30,6 +30,9 @@ else()
     add_definitions(-DRELEASE_MODE)
 endif()
 
+file(MAKE_DIRECTORY cache/chunks)
+file(MAKE_DIRECTORY cache/maps)
+
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 add_executable(torq
         main.cpp
@@ -47,6 +50,8 @@ find_package(ZLIB REQUIRED)
 
 target_include_directories(torq PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_compile_definitions(torq PRIVATE ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets")
+target_compile_definitions(torq PRIVATE CACHE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/cache")
+target_compile_definitions(torq PRIVATE REGIONS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/cache/regions")
 target_link_libraries(torq PRIVATE
     OpenGL::GL
     glfw
