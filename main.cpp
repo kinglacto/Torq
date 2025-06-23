@@ -49,7 +49,24 @@ double mouse_dy;
 double mouse_scroll;
 
 int main(){
-    std::srand(std::time(0));
+#ifdef TEST_MODE
+    while (true) {
+        seed_t seed;
+        std::cin >> seed;
+        Terrain t(seed);
+        t.genMap();
+        char* args[] = { (char*)"brave" , (char*)t.mapFile.c_str(), NULL };
+        if (fork() == 0) {
+            execvp(args[0], args);
+        }
+        //t.extendMap(512, 512);
+        //if (fork() == 0) {
+        //    execvp(args[0], args);
+        //}
+    }
+    return 0;
+#endif // TEST_MODE
+    
 	init();
 
 	if (!screen.init()) {
@@ -98,9 +115,6 @@ int main(){
 	chunkRenderer.chunkLoader = chunkLoader;
 	chunkRenderer.texture = texture;
     
-    // Terrain terrain(1024, 1024, 123456);
-    // std::vector<std::vector<float>> textureMap = terrain.genMap();
-
 	while (!screen.shouldClose()) {
 		auto currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;

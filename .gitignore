@@ -5,6 +5,7 @@
 .idea/
 .git/
 .cache
+cache/
 .git/
 torq
 OpenGL
