@@ -51,7 +51,7 @@ find_package(ZLIB REQUIRED)
 target_include_directories(torq PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_compile_definitions(torq PRIVATE ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets")
 target_compile_definitions(torq PRIVATE CACHE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/cache")
-target_compile_definitions(torq PRIVATE REGIONS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/cache/regions")
+target_compile_definitions(torq PRIVATE CHUNKS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets/chunks")
 target_link_libraries(torq PRIVATE
     OpenGL::GL
     glfw

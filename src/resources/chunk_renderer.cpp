@@ -205,7 +205,11 @@ void ChunkRenderer::update(Shader* shader){
     getChunkCoordsFromWorldCoords(static_cast<int>(worldPos.x),
         static_cast<int>(worldPos.z), &chunk_x, &chunk_z);
 
-
+    //for (int i = 0; i < 32; i++) {
+    //    for (int j = 0; j < 32; j++) {
+    //        makeChunkMesh({i, j});
+    //    }
+    //}
     makeChunkMesh({0, 0});
     updateMeshes();
     render(shader);

@@ -241,13 +241,13 @@ ChunkErrorCode ChunkLoader::writeRegion(RegionData* regionData){
     std::vector<Bytef> compressedBuffer(compress_bound_size);
     for(int i = 0; i < CHUNKS_PER_REGION_SIDE; i++){
         for(int j = 0; j < CHUNKS_PER_REGION_SIDE; j++){
-            uLongf compressedSize = compressBound(sizeof(regionData->chunks[i][j]->blocks));
+            uLongf compressedSize = compressBound(sizeof(regionData->chunks[i][j].blocks));
     
             int zret = compress(    
                 compressedBuffer.data(), 
                 &compressedSize, 
-                reinterpret_cast<const Bytef*>(regionData->chunks[i][j]->blocks), 
-                sizeof(regionData->chunks[i][j]->blocks)
+                reinterpret_cast<const Bytef*>(regionData->chunks[i][j].blocks), 
+                sizeof(regionData->chunks[i][j].blocks)
             );
 
             if (zret != Z_OK) {

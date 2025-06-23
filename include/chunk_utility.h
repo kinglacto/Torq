@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include "block_utility.h"
 
 #define BLOCK_X_SIZE 16
@@ -46,7 +45,7 @@ struct ChunkData{
 
 struct RegionData{
     int x, z;
-    std::unique_ptr<ChunkData> chunks[CHUNKS_PER_REGION_SIDE][CHUNKS_PER_REGION_SIDE];
+    ChunkData chunks[CHUNKS_PER_REGION_SIDE][CHUNKS_PER_REGION_SIDE];
 };
 
 inline const int neighbor_offsets[6][3] = {

@@ -1,7 +1,6 @@
 #include "chunk_utility.h"
 #include <cstdint>
 #include <worldgen.hpp>
-#include <iostream>
 #include <stb_image_write.h>
 #include <Noise.hpp>
 
@@ -39,25 +38,23 @@ float WorldGen::getHeight(long x, long z) {
     return finalValue;
 }
 
-void WorldGen::generateRegion(RHeightMap& regionHM, RegionData& regionData) {
-    long xoffset = regionHM.rx * BLOCKS_PER_REGION_SIDE;
-    long zoffset = regionHM.rz * BLOCKS_PER_REGION_SIDE;
+void WorldGen::generateRegion(RHeightMap* regionHM, RegionData* regionData) {
+    long xoffset = regionHM->rx * BLOCKS_PER_REGION_SIDE;
+    long zoffset = regionHM->rz * BLOCKS_PER_REGION_SIDE;
     blockData Stone; Stone.id = 1;
     blockData Air; Air.id = 0;
 
     for (long x = 0; x < BLOCKS_PER_REGION_SIDE; x++) {
         for (long z = 0; z < BLOCKS_PER_REGION_SIDE; z++) {
             float noise = getHeight(xoffset + x, zoffset + z);
-            regionHM.heights[x][z] = noise;
-            if (x == 0)
-                std::cout << regionHM.heights[x][z] << std::endl;
-            long chunkX = x / CHUNKS_PER_REGION_SIDE;
-            long chunkZ = z / CHUNKS_PER_REGION_SIDE;
-            long localX = x % CHUNKS_PER_REGION_SIDE;
-            long localZ = x % CHUNKS_PER_REGION_SIDE;
+            regionHM->heights[x][z] = noise;
+            long chunkX = x / BLOCK_X_SIZE;
+            long chunkZ = z / BLOCK_Z_SIZE;
+            long localX = x % BLOCK_X_SIZE;
+            long localZ = z % BLOCK_Z_SIZE;
             int surfaceHeight = static_cast<int>(noise * BLOCK_Y_SIZE);
             for (long y = 0; y < BLOCK_Y_SIZE; y++)
-                regionData.chunks[chunkX][chunkZ].blocks[y][localX][localZ] = y > surfaceHeight ? Air : Stone;
+                regionData->chunks[chunkX][chunkZ].blocks[y][localX][localZ] = y > surfaceHeight ? Air : Stone;
         }
     }
 }
