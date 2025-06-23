@@ -214,10 +214,88 @@ ChunkErrorCode ChunkLoader::writeChunk(ChunkData* chunkData){
     
 }
 
+ChunkErrorCode ChunkLoader::writeRegion(RegionData* regionData){
+    int region_x = regionData->x;
+    int region_z = regionData->z;
+
+    auto region_coords = std::make_pair(region_x, region_z);
+
+    if (ExistingFiles.find(region_coords) == ExistingFiles.end()){
+        ChunkErrorCode e = createRegionFile(region_x, region_z);
+        if (e != NO_ERROR){
+            return e;
+        }
+        ExistingFiles.insert(region_coords);
+    }
+
+    std::vector<HeaderEntry> header(CHUNKS_PER_REGION_SIDE * CHUNKS_PER_REGION_SIDE);
+
+    std::vector<Bytef> final_payload;
+    const size_t total_uncompressed_size = sizeof(ChunkData::blocks) * CHUNKS_PER_REGION_SIDE * 
+    CHUNKS_PER_REGION_SIDE;
+
+    final_payload.reserve(total_uncompressed_size / 2);
+
+    std::size_t offset = header_size;
+    uLongf compress_bound_size = compressBound(sizeof(ChunkData::blocks));
+    std::vector<Bytef> compressedBuffer(compress_bound_size);
+    for(int i = 0; i < CHUNKS_PER_REGION_SIDE; i++){
+        for(int j = 0; j < CHUNKS_PER_REGION_SIDE; j++){
+            uLongf compressedSize = compressBound(sizeof(regionData->chunks[i][j]->blocks));
+    
+            int zret = compress(    
+                compressedBuffer.data(), 
+                &compressedSize, 
+                reinterpret_cast<const Bytef*>(regionData->chunks[i][j]->blocks), 
+                sizeof(regionData->chunks[i][j]->blocks)
+            );
+
+            if (zret != Z_OK) {
+                std::cerr << "Compression failed for chunk (" << i << ", " << j << ")\n";
+                return COMPRESSION_ERROR;
+            }
+
+            compressedBuffer.resize(compressedSize);
+
+            auto newOffset = static_cast<chunk_header_offset_type>(offset);
+            auto newLength = static_cast<chunk_header_length_type>(compressedBuffer.size());
+            offset += compressedBuffer.size();
+
+            header[i * CHUNKS_PER_REGION_SIDE + j].offset = newOffset;
+            header[i * CHUNKS_PER_REGION_SIDE + j].length = newLength;
+
+            final_payload.insert(final_payload.end(), compressedBuffer.begin(), 
+            compressedBuffer.begin() + compressedSize);
+        }
+    }
+
+    std::string filePath = getRegionFileName(region_x, region_z);
+    std::fstream file(filePath, std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
+    if (!file) {
+        std::cerr << "Failed to open region file for writing: " << filePath << "\n";
+        return FILE_ERROR;
+    }
+
+    file.write(reinterpret_cast<const char*>(final_payload.data()), final_payload.size());
+    if (!file) {
+        std::cerr << "Failed to write chunk data to " << filePath << "\n";
+        return FILE_ERROR;
+    }
+
+    file.seekg(0, std::ios::beg);
+    file.write(reinterpret_cast<const char*>(header.data()), header_size);
+    if (!file) {
+        std::cerr << "Failed to write updated header to " << filePath << "\n";
+        return HEADER_CORRUPTED;
+    }
+
+    return NO_ERROR;
+
+}
+
 ChunkErrorCode ChunkLoader::setChunkDir(const std::string& chunkDir){
     if (fs::exists(chunkDir)){
         ChunkLoader::chunkDir = chunkDir;
-
     }
 
     else{

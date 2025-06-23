@@ -22,7 +22,7 @@ Cube::~Cube() = default;
 void Cube::init() {
 	model = glm::mat4(1.0f);
 	int noVertices = 36;
-	glm::vec4 a = texture->uvMap[texMap::block];
+	glm::vec4 a = texture->uvMap[TexMap::side_dirt];
 	float bu = a.x;
 	float bv = a.y;
 

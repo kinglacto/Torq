@@ -24,14 +24,13 @@ class ChunkLoader{
     ChunkErrorCode createRegionFile(int x, int z);
     std::unordered_set<std::pair<int, int>, PairHash> ExistingFiles;
 public:
-    std::shared_ptr<Terrain> terrain;
-    
     ChunkLoader(const std::string& chunkDir);
     ChunkErrorCode cacheRegionFile(int region_x, int region_z);
 
     std::unique_ptr<ChunkData> getChunk(int chunk_x, int chunk_z, ChunkErrorCode* error);
 
     ChunkErrorCode writeChunk(ChunkData* chunkData);
+    ChunkErrorCode writeRegion(RegionData* regionData);
 
     ChunkErrorCode setChunkDir(const std::string& chunkDir);
     std::string getRegionFileName(int region_x, int region_z);

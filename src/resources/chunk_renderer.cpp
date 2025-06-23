@@ -50,31 +50,31 @@ ChunkErrorCode ChunkRenderer::makeChunkActive(const std::pair<int, int>& chunk_c
         return NO_ERROR;
     }
 
-    else{
-        ChunkErrorCode e;
-        auto chunkData = std::move(chunkLoader->getChunk(chunk_coords.first, chunk_coords.second, &e));
-        if (e == NO_ERROR){
-            auto activeChunk = std::make_unique<ActiveChunk>(std::move(chunkData));
-            ActiveChunkRemeshQueue.push(activeChunk.get());
-            activeChunks.emplace(chunk_coords, std::move(activeChunk));
+    ChunkErrorCode e;
+    auto chunkData = std::move(chunkLoader->getChunk(chunk_coords.first, chunk_coords.second, &e));
+    if (e == NO_ERROR){
+        auto activeChunk = std::make_unique<ActiveChunk>(std::move(chunkData));
+        ActiveChunkRemeshQueue.push(activeChunk.get());
+        activeChunks.emplace(chunk_coords, std::move(activeChunk));
 
-            auto staticPtr = chunkMeshes.find(chunk_coords);
-            if (staticPtr == chunkMeshes.end()){
-                auto chunkMesh = std::make_unique<ChunkMesh>(chunk_coords.first, chunk_coords.second);
-                chunkMeshes.emplace(chunk_coords, std::move(chunkMesh));
-            }
-        }   
-
-        else{
-            return e;
+        auto staticPtr = chunkMeshes.find(chunk_coords);
+        if (staticPtr == chunkMeshes.end()){
+            auto chunkMesh = std::make_unique<ChunkMesh>(chunk_coords.first, chunk_coords.second);
+            chunkMeshes.emplace(chunk_coords, std::move(chunkMesh));
         }
+
+        return NO_ERROR;
+    }
+
+    else{
+        return e;
     }
 }
 
 void ChunkRenderer::updateMeshes(){
-    for(auto it = activeChunks.begin(); it != activeChunks.end(); it++){
-        if (it->second->remeshNeeded){
-            ActiveChunkRemeshQueue.push(it->second.get());
+    for(auto & activeChunk : activeChunks){
+        if (activeChunk.second->remeshNeeded){
+            ActiveChunkRemeshQueue.push(activeChunk.second.get());
         }
     }
 
@@ -86,6 +86,12 @@ void ChunkRenderer::updateMeshes(){
     while(!ActiveChunkRemeshQueue.empty()){
         generateActiveMesh(ActiveChunkRemeshQueue.front());
         ActiveChunkRemeshQueue.pop();
+    }
+}
+
+void ChunkRenderer::cleanup() {
+    for (auto& mesh: chunkMeshes) {
+        mesh.second->deleteMesh();
     }
 }
 
@@ -116,19 +122,9 @@ inline bool isBlockSolid(ChunkData* chunkData, int x, int y, int z) {
 
 ChunkErrorCode ChunkRenderer::generateVertices(ChunkData* chunkData, 
     std::vector<TextureVertex>& vertices) {
-
-    glm::vec4 a = texture->uvMap[texMap::block];
-	float bu = a.x;
-	float bv = a.y;
-
-	float cu = a.z;
-	float cv = a.w;
-
-	float width = cu - bu;
-	float height = cv - bv;
     
     vertices.clear();
-    vertices.reserve(10000); 
+    vertices.reserve(10000);
 
     for(int y = 0; y < BLOCK_Y_SIZE; y++){
         for(int x = 0; x < BLOCK_X_SIZE; x++){
@@ -140,6 +136,17 @@ ChunkErrorCode ChunkRenderer::generateVertices(ChunkData* chunkData,
                         int new_z = z + neighbor_offsets[i][2];
 
                         if (!isBlockSolid(chunkData, new_x, new_y, new_z)){
+                            glm::vec4 a = 
+                            texture->uvMap[blockTexMap[chunkData->blocks[x][y][z].id].texId[i]];
+                            float bu = a.x;
+                            float bv = a.y;
+
+                            float cu = a.z;
+                            float cv = a.w;
+
+                            float width = cu - bu;
+                            float height = cv - bv;
+
                             for(int j = 0; j < 6; j++){
                                 TextureVertex vert;
                                 int v_index = j * 8;
@@ -193,9 +200,7 @@ void ChunkRenderer::getRegionCoordsFromWorldCoords(int world_x, int world_z, int
 }
 
 void ChunkRenderer::update(Shader* shader){
-    getChunkCoordsFromWorldCoords(worldPos.x, worldPos.z, &chunk_x, &chunk_z);
-
-    makeChunkMesh({chunk_x, chunk_z});
+    makeChunkMesh({0, 0});
     updateMeshes();
     render(shader);
 }

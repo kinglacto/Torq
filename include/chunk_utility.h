@@ -1,12 +1,14 @@
 #pragma once
 
-#include <cstdint>
+#include <memory>
+#include "block_utility.h"
 
-using idType = uint8_t;
 #define BLOCK_X_SIZE 16
 #define BLOCK_Y_SIZE 16
 #define BLOCK_Z_SIZE 16
 #define CHUNKS_PER_REGION_SIDE 32
+
+#define BLOCKS_PER_REGION_SIDE 512
 
 using chunk_header_offset_type = uint32_t;
 using chunk_header_length_type = uint32_t;
@@ -34,7 +36,7 @@ struct HeaderEntry{
 };
 
 struct blockData{
-    idType id;
+    blockIdType id;
 };
 
 struct ChunkData{
@@ -42,13 +44,9 @@ struct ChunkData{
     blockData blocks[BLOCK_Y_SIZE][BLOCK_X_SIZE][BLOCK_Z_SIZE];
 };
 
-enum blockDirectionIndex{
-    up,
-    down,
-    left,
-    right,
-    bottom,
-    top
+struct RegionData{
+    int x, z;
+    std::unique_ptr<ChunkData> chunks[CHUNKS_PER_REGION_SIDE][CHUNKS_PER_REGION_SIDE];
 };
 
 inline const int neighbor_offsets[6][3] = {

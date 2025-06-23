@@ -158,7 +158,7 @@ void Texture::loadTextures(const std::string& texturePath){
 
     std::sort(texturePaths.begin(), texturePaths.end());
 
-	idType counter = 0;
+	texIdType counter = 0;
 	bool firstTexture = true;
 
 	for (auto const& entry : texturePaths) {
@@ -166,7 +166,7 @@ void Texture::loadTextures(const std::string& texturePath){
 		std::string name = entry.filename().string();
 	
 		Tex t;
-		t.id = (texMap) counter;
+		t.id = (TexMap) counter;
 		t.data = stbi_load(path.c_str(), &t.width, &t.height, &t.nrChannels, 0);
 		
 		// NOTE: Assumes all png's are of the same SQUARE dimension

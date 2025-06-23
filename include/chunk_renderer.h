@@ -8,11 +8,11 @@
 #include "chunk_mesh.h"
 #include "shader.h"
 #include "texture.h"
+#include "block_utility.h"
 #include <glm/glm.hpp>
 
 class ChunkRenderer{
 public:
-    int chunk_x, chunk_z;
     glm::vec3 worldPos;
     Texture* texture;
     glm::vec3 block_scaling_factor{10};
@@ -43,4 +43,5 @@ public:
     void render(Shader* shader);
 
     void update(Shader* shader);
+    void cleanup();
 };

@@ -85,6 +85,7 @@ int main(){
 	glfwGetCursorPos(screen.window, &mouse::lastX, &mouse::lastY);
 	screen.setParameters();
 
+	generate_data();
 	ResourceManager resource{};
 
 	resource.LoadShader(BASIC_TEXTURE_VERTEX_SHADER, BASIC_TEXTURE_FRAG_SHADER, 0);
@@ -98,18 +99,26 @@ int main(){
 		std::cerr << "Texture activation failed: " << std::endl;
 	}
 
-	// Cube model(glm::vec3(0.0f, 0.0f, 0.0f), 16.0f, shader, texture);
-	// model.init();
-
-	glm::mat4 view = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
+	auto view = glm::mat4(1.0f);
+	auto projection = glm::mat4(1.0f);
 
 	auto chunkLoader = std::make_shared<ChunkLoader>(std::string(CHUNK_DIR));
-    
-    std::srand(std::time(0));
-    auto terrain = std::make_shared<Terrain>(1024, 1024, std::rand() % 10000);
-	chunkLoader->terrain = terrain;
-    terrain->genMap();
+
+	auto* data = new ChunkData;
+	data->x = 0;
+	data->z = 0;
+	blockData solid = {1};
+	blockData air = {0};
+	for (int y = 0; y < BLOCK_Y_SIZE; y++){
+		for(int x = 0; x < BLOCK_X_SIZE; x++){
+			for(int z = 0; z < BLOCK_Z_SIZE; z++){
+				data->blocks[y][x][z] = solid;
+			}
+		}
+	}
+
+	chunkLoader->writeChunk(data);
+	delete data;
 
 	ChunkRenderer chunkRenderer{};
 	chunkRenderer.chunkLoader = chunkLoader;
@@ -134,15 +143,15 @@ int main(){
 		shader->setMat4("view", view);
 		shader->setMat4("projection", projection);
 		chunkRenderer.update(shader);
-		//model.render();
 		screen.newFrame();
 		double fps = 1/(double) deltaTime;
-		std::cout << fps << std::endl;
+		//std::cout << fps << std::endl;
 	}
 
-	//model.cleanup();
+	chunkRenderer.cleanup();
 	resource.deleteAll();
 	glfwTerminate();
+	delete[] blockTexMap;
 	return 0;
 }
 

@@ -1,5 +1,7 @@
 #include "shader.h"
 
+#include "assets.h"
+
 Shader::Shader() = default;
 
 Shader::Shader(const std::string& vertexShaderPath, const std::string&  fragmentShaderPath) {
@@ -49,7 +51,8 @@ GLuint Shader::compileShader(const std::string& filepath, GLenum type) {
         glGetShaderInfoLog(Shader_id, 512, nullptr, logInfo);
         std::cerr << "Error with vertex shader compilation: " << std::endl << logInfo << std::endl;
     }
-    free((void*) Shader_src);
+
+    delete[] Shader_src;
     return Shader_id;
 }
 

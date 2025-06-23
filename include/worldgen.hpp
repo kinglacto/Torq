@@ -23,4 +23,3 @@ public:
 
     void getChunkData(ChunkData* chunk);
 };
-

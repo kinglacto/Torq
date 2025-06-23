@@ -6,10 +6,10 @@
 #include <map>
 #include <vector>
 #include <glm/glm.hpp>
-#include "texture_hash.h"
+#include "texture_utility.h"
 
 struct Tex{
-	texMap id;
+	TexMap id;
 	int width, height, nrChannels;
 	unsigned char* data{nullptr};
 };
@@ -22,7 +22,7 @@ private:
 
 	int width, height, nrChannels;
 public:
-	std::map<texMap, glm::vec4> uvMap;
+	std::map<TexMap, glm::vec4> uvMap;
 
 private:
 	std::vector<Tex> textures;
