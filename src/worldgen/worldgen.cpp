@@ -53,6 +53,8 @@ void WorldGen::generateRegion(RHeightMap* regionHM, RegionData* regionData) {
             long localX = x % BLOCK_X_SIZE;
             long localZ = z % BLOCK_Z_SIZE;
             int surfaceHeight = static_cast<int>(noise * BLOCK_Y_SIZE);
+            regionData->chunks[chunkX][chunkZ].x = chunkX;
+            regionData->chunks[chunkX][chunkZ].z = chunkZ;
             for (long y = 0; y < BLOCK_Y_SIZE; y++)
                 regionData->chunks[chunkX][chunkZ].blocks[y][localX][localZ] = y > surfaceHeight ? Air : Stone;
         }

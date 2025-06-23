@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "chunk_utility.h"
 #include "src/IO/camera.h"
 #include "src/IO/keyboard.h"
 #include "src/IO/mouse.h"
@@ -49,24 +50,6 @@ double mouse_dy;
 double mouse_scroll;
 
 int main(){
-#ifdef TEST_MODE
-    while (true) {
-        seed_t seed;
-        std::cin >> seed;
-        Terrain t(seed);
-        t.genMap();
-        char* args[] = { (char*)"brave" , (char*)t.mapFile.c_str(), NULL };
-        if (fork() == 0) {
-            execvp(args[0], args);
-        }
-        //t.extendMap(512, 512);
-        //if (fork() == 0) {
-        //    execvp(args[0], args);
-        //}
-    }
-    return 0;
-#endif // TEST_MODE
-    
 	init();
 
 	if (!screen.init()) {
@@ -108,20 +91,18 @@ int main(){
     RegionData* regionData = new RegionData(0, 0);
     WorldGen::generateRegion(regionHM, regionData);
 
-	for (int y = 0; y < BLOCK_Y_SIZE; y++) {
-		for (int x = 0; x < BLOCK_X_SIZE; x++) {
-			for (int z = 0; z < BLOCK_Z_SIZE; z++) {
-				int c = regionData->chunks[0][0].blocks[y][x][z].id;
-				if (c != 0 && c != 1) {
-					std::cout << c << std::endl;
-				}
-			}
-		}
-	}
-
-	regionData->chunks[0][0].x = 0;
-	regionData->chunks[0][0].z = 0;
-	chunkLoader->writeChunk(&regionData->chunks[0][0]);
+	// for (int y = 0; y < BLOCK_Y_SIZE; y++) {
+	// 	for (int x = 0; x < BLOCK_X_SIZE; x++) {
+	// 		for (int z = 0; z < BLOCK_Z_SIZE; z++) {
+	// 			int c = regionData->chunks[0][0].blocks[y][x][z].id;
+	// 			if (c != 0 && c != 1) {
+	// 				std::cout << c << std::endl;
+	// 			}
+	// 		}
+	// 	}
+	// }
+    
+    chunkLoader->writeChunk(&regionData->chunks[0][0]);
 	//chunkLoader->writeRegion(regionData);
 
 	ChunkRenderer chunkRenderer{};
