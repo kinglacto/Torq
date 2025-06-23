@@ -103,27 +103,31 @@ int main(){
 	auto projection = glm::mat4(1.0f);
 
 	auto chunkLoader = std::make_shared<ChunkLoader>(std::string(CHUNK_DIR));
+    WorldGen::setMasterSeed(123456);
+    RHeightMap* regionHM = new RHeightMap(0, 0);
+    RegionData* regionData = new RegionData(0, 0);
+    WorldGen::generateRegion(regionHM, regionData);
 
-	auto* data = new ChunkData;
-	data->x = 0;
-	data->z = 0;
-	blockData solid = {1};
-	blockData air = {0};
-	for (int y = 0; y < BLOCK_Y_SIZE; y++){
-		for(int x = 0; x < BLOCK_X_SIZE; x++){
-			for(int z = 0; z < BLOCK_Z_SIZE; z++){
-				data->blocks[y][x][z] = solid;
+	for (int y = 0; y < BLOCK_Y_SIZE; y++) {
+		for (int x = 0; x < BLOCK_X_SIZE; x++) {
+			for (int z = 0; z < BLOCK_Z_SIZE; z++) {
+				int c = regionData->chunks[0][0].blocks[y][x][z].id;
+				if (c != 0 && c != 1) {
+					std::cout << c << std::endl;
+				}
 			}
 		}
 	}
 
-	chunkLoader->writeChunk(data);
-	delete data;
+	regionData->chunks[0][0].x = 0;
+	regionData->chunks[0][0].z = 0;
+	chunkLoader->writeChunk(&regionData->chunks[0][0]);
+	//chunkLoader->writeRegion(regionData);
 
 	ChunkRenderer chunkRenderer{};
 	chunkRenderer.chunkLoader = chunkLoader;
 	chunkRenderer.texture = texture;
-    
+
 	while (!screen.shouldClose()) {
 		auto currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;

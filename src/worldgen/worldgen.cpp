@@ -39,25 +39,39 @@ float WorldGen::getHeight(long x, long z) {
     return finalValue;
 }
 
-void WorldGen::generateRegion(RHeightMap& regionHM, RegionData& regionData) {
-    long xoffset = regionHM.rx * BLOCKS_PER_REGION_SIDE;
-    long zoffset = regionHM.rz * BLOCKS_PER_REGION_SIDE;
-    blockData Stone; Stone.id = 1;
-    blockData Air; Air.id = 0;
+void WorldGen::generateRegion(RHeightMap* regionHM, RegionData* regionData) {
+    long xoffset = regionHM->rx * BLOCKS_PER_REGION_SIDE;
+    long zoffset = regionHM->rz * BLOCKS_PER_REGION_SIDE;
+    const blockData Stone{1};
+    const blockData Air{0};
 
     for (long x = 0; x < BLOCKS_PER_REGION_SIDE; x++) {
         for (long z = 0; z < BLOCKS_PER_REGION_SIDE; z++) {
             float noise = getHeight(xoffset + x, zoffset + z);
-            regionHM.heights[x][z] = noise;
-            if (x == 0)
-                std::cout << regionHM.heights[x][z] << std::endl;
-            long chunkX = x / CHUNKS_PER_REGION_SIDE;
-            long chunkZ = z / CHUNKS_PER_REGION_SIDE;
-            long localX = x % CHUNKS_PER_REGION_SIDE;
-            long localZ = x % CHUNKS_PER_REGION_SIDE;
+            regionHM->heights[x][z] = noise;
+
+            // --- THE CORRECT MATH ---
+            // To find the chunk index, divide by the number of blocks in a chunk's side.
+            long chunkX = x / BLOCK_X_SIZE;
+            long chunkZ = z / BLOCK_Z_SIZE;
+
+            // To find the local coordinate, take the modulo with the number of blocks in a chunk's side.
+            long localX = x % BLOCK_X_SIZE;
+            long localZ = z % BLOCK_Z_SIZE; // Fixed copy-paste error and divisor
+
+            // Clamp the height value to be safe
             int surfaceHeight = static_cast<int>(noise * BLOCK_Y_SIZE);
-            for (long y = 0; y < BLOCK_Y_SIZE; y++)
-                regionData.chunks[chunkX][chunkZ].blocks[y][localX][localZ] = y > surfaceHeight ? Air : Stone;
+            if (surfaceHeight >= BLOCK_Y_SIZE) {
+                surfaceHeight = BLOCK_Y_SIZE - 1;
+            }
+            if (surfaceHeight < 0) {
+                surfaceHeight = 0;
+            }
+
+            for (long y = 0; y < BLOCK_Y_SIZE; y++) {
+                // Your access order [y][localX][localZ] is now CORRECT for the new header.
+                regionData->chunks[chunkX][chunkZ].blocks[y][localX][localZ] = (y > surfaceHeight) ? Air : Stone;
+            }
         }
     }
 }

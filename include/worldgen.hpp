@@ -21,7 +21,7 @@ public:
 
     static void setMasterSeed(seed_t _masterSeed);
     static float getHeight(long x, long z);
-    static void generateRegion(RHeightMap& regionHM, RegionData& regionData);
+    static void generateRegion(RHeightMap* regionHM, RegionData* regionData);
     static void genImage(const RHeightMap& region, const std::string mapFile);
 
     static void getChunkData(ChunkData* chunk);

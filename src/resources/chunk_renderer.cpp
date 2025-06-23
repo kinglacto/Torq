@@ -123,7 +123,7 @@ inline bool isBlockSolid(ChunkData* chunkData, int x, int y, int z) {
 
 ChunkErrorCode ChunkRenderer::generateVertices(ChunkData* chunkData, 
     std::vector<TextureVertex>& vertices) {
-    
+
     vertices.clear();
     vertices.reserve(10000);
 
@@ -138,7 +138,7 @@ ChunkErrorCode ChunkRenderer::generateVertices(ChunkData* chunkData,
 
                         if (!isBlockSolid(chunkData, new_x, new_y, new_z)){
                             glm::vec4 a = 
-                            texture->uvMap[blockTexMap[chunkData->blocks[x][y][z].id].texId[i]];
+                            texture->uvMap[blockTexMap[chunkData->blocks[y][x][z].id].texId[i]];
                             float bu = a.x;
                             float bv = a.y;
 
@@ -151,9 +151,9 @@ ChunkErrorCode ChunkRenderer::generateVertices(ChunkData* chunkData,
                             for(int j = 0; j < 6; j++){
                                 TextureVertex vert;
                                 int v_index = j * 8;
-                                vert.pos.x = blockVertices[i][v_index + 0] + x; 
-                                vert.pos.y = blockVertices[i][v_index + 1] + y;
-                                vert.pos.z = blockVertices[i][v_index + 2] + z;
+                                vert.pos.x = blockVertices[i][v_index + 0] + static_cast<float>(x);
+                                vert.pos.y = blockVertices[i][v_index + 1] + static_cast<float>(y);
+                                vert.pos.z = blockVertices[i][v_index + 2] + static_cast<float>(z);
 
                                 vert.normal.x = blockVertices[i][v_index + 3];
                                 vert.normal.y = blockVertices[i][v_index + 4];
@@ -161,7 +161,7 @@ ChunkErrorCode ChunkRenderer::generateVertices(ChunkData* chunkData,
 
                                 vert.tex.x = blockVertices[i][v_index + 6] * width + bu;
                                 vert.tex.y = blockVertices[i][v_index + 7] * height + bv;
-                                
+
                                 vertices.push_back(vert);
                             }
                         }
@@ -176,6 +176,7 @@ ChunkErrorCode ChunkRenderer::generateVertices(ChunkData* chunkData,
 
 void ChunkRenderer::render(Shader* shader){
     for(const auto& [coords, chunkMesh] : chunkMeshes) {
+        if (chunkMesh->vertexCount == 0) continue;
         glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(coords.first * BLOCK_X_SIZE, 0.0f, 
             coords.second * BLOCK_Z_SIZE)) * glm::scale(glm::mat4(1.0f), block_scaling_factor);
 
@@ -205,7 +206,11 @@ void ChunkRenderer::update(Shader* shader){
     getChunkCoordsFromWorldCoords(static_cast<int>(worldPos.x),
         static_cast<int>(worldPos.z), &chunk_x, &chunk_z);
 
-
+    /*for (int i = 0; i < 32; i++) {
+        for (int j = 0; j < 32; j++) {
+            makeChunkMesh({i, j});
+        }
+    }*/
     makeChunkMesh({0, 0});
     updateMeshes();
     render(shader);

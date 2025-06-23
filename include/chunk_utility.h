@@ -46,7 +46,7 @@ struct ChunkData{
 
 struct RegionData{
     int x, z;
-    std::unique_ptr<ChunkData> chunks[CHUNKS_PER_REGION_SIDE][CHUNKS_PER_REGION_SIDE];
+    ChunkData chunks[CHUNKS_PER_REGION_SIDE][CHUNKS_PER_REGION_SIDE];
 };
 
 inline const int neighbor_offsets[6][3] = {

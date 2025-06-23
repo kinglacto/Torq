@@ -8,12 +8,15 @@
 
 void generate_data(){
     blockTexMap = new BlockInfo[NUM_BLOCK_TYPES];
-    
-    int i = BlockMap::grass;
-    blockTexMap[grass].texId[blockDirectionIndex::top] = TexMap::grass_cover;
-    blockTexMap[grass].texId[blockDirectionIndex::bottom] = TexMap::side_dirt;
-    blockTexMap[grass].texId[blockDirectionIndex::left] = TexMap::side_dirt;
-    blockTexMap[grass].texId[blockDirectionIndex::right] = TexMap::side_dirt;
-    blockTexMap[grass].texId[blockDirectionIndex::front] = TexMap::side_dirt;
-    blockTexMap[grass].texId[blockDirectionIndex::back] = TexMap::side_dirt;
+
+    blockTexMap[BlockMap::grass].texId[blockDirectionIndex::top] = TexMap::grass_cover;
+    blockTexMap[BlockMap::grass].texId[blockDirectionIndex::bottom] = TexMap::side_dirt;
+    blockTexMap[BlockMap::grass].texId[blockDirectionIndex::left] = TexMap::side_dirt;
+    blockTexMap[BlockMap::grass].texId[blockDirectionIndex::right] = TexMap::side_dirt;
+    blockTexMap[BlockMap::grass].texId[blockDirectionIndex::front] = TexMap::side_dirt;
+    blockTexMap[BlockMap::grass].texId[blockDirectionIndex::back] = TexMap::side_dirt;
+
+    // --- AIR ---
+    // Zero out the air block data just to be safe.
+    blockTexMap[air] = {};
 }
