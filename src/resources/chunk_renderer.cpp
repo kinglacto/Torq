@@ -72,6 +72,7 @@ ChunkErrorCode ChunkRenderer::makeChunkActive(const std::pair<int, int>& chunk_c
 }
 
 void ChunkRenderer::updateMeshes(){
+
     for(auto & activeChunk : activeChunks){
         if (activeChunk.second->remeshNeeded){
             ActiveChunkRemeshQueue.push(activeChunk.second.get());
@@ -200,6 +201,11 @@ void ChunkRenderer::getRegionCoordsFromWorldCoords(int world_x, int world_z, int
 }
 
 void ChunkRenderer::update(Shader* shader){
+    int chunk_x, chunk_z;
+    getChunkCoordsFromWorldCoords(static_cast<int>(worldPos.x),
+        static_cast<int>(worldPos.z), &chunk_x, &chunk_z);
+
+
     makeChunkMesh({0, 0});
     updateMeshes();
     render(shader);

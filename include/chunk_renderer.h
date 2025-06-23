@@ -13,6 +13,8 @@
 
 class ChunkRenderer{
 public:
+    int renderDistance;
+
     glm::vec3 worldPos;
     Texture* texture;
     glm::vec3 block_scaling_factor{10};
