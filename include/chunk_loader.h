@@ -1,6 +1,7 @@
 #pragma once
 
 #include "chunk_utility.h"
+#include "worldgen.hpp"
 #include <string>
 #include <memory>
 #include <map>
@@ -23,6 +24,8 @@ class ChunkLoader{
     ChunkErrorCode createRegionFile(int x, int z);
     std::unordered_set<std::pair<int, int>, PairHash> ExistingFiles;
 public:
+    std::shared_ptr<Terrain> terrain;
+    
     ChunkLoader(const std::string& chunkDir);
     ChunkErrorCode cacheRegionFile(int region_x, int region_z);
 

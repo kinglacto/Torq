@@ -4,7 +4,7 @@
 
 using idType = uint8_t;
 #define BLOCK_X_SIZE 16
-#define BLOCK_Y_SIZE 256
+#define BLOCK_Y_SIZE 16
 #define BLOCK_Z_SIZE 16
 #define CHUNKS_PER_REGION_SIDE 32
 

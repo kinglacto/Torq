@@ -80,7 +80,6 @@ void Texture::setup(const std::string& texturePath) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 	if (atlas) {
 
@@ -100,6 +99,7 @@ void Texture::setup(const std::string& texturePath) {
 		}	
 
 		glTexImage2D(GL_TEXTURE_2D, 0, format, atlasSize, atlasSize, 0, format, GL_UNSIGNED_BYTE, atlas);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 

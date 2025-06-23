@@ -193,7 +193,9 @@ void ChunkRenderer::getRegionCoordsFromWorldCoords(int world_x, int world_z, int
 }
 
 void ChunkRenderer::update(Shader* shader){
-    makeChunkMesh({0, 0});
+    getChunkCoordsFromWorldCoords(worldPos.x, worldPos.z, &chunk_x, &chunk_z);
+
+    makeChunkMesh({chunk_x, chunk_z});
     updateMeshes();
     render(shader);
 }

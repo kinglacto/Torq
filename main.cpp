@@ -90,18 +90,9 @@ int main(){
 	auto chunkLoader = std::make_shared<ChunkLoader>(std::string(CHUNK_DIR));
     
     std::srand(std::time(0));
-    Terrain terrain(1024, 1024, std::rand() % 10000);
-	ChunkData* data = new ChunkData;
-    terrain.genMap();
-    terrain.getChunkData(data);
-
-    camera.cameraPos += glm::vec3(0, 256, 0);
-    
-
-	std::cout << "made chunk..." << std::endl;
-	chunkLoader->writeChunk(data);
-	std::cout << "finished writing..." << std::endl;
-	free(data);
+    auto terrain = std::make_shared<Terrain>(1024, 1024, std::rand() % 10000);
+	chunkLoader->terrain = terrain;
+    terrain->genMap();
 
 	ChunkRenderer chunkRenderer{};
 	chunkRenderer.chunkLoader = chunkLoader;
@@ -116,6 +107,7 @@ int main(){
 		lastFrame = currentFrame;
 		camera.deltaTime = deltaTime;
 		processInput();
+		chunkRenderer.worldPos = camera.cameraPos;
 		view = camera.getViewMatrix();
 		projection = glm::perspective(glm::radians(camera.getZoom()),
 			static_cast<float>(SCREEN_WIDTH)/static_cast<float>(SCREEN_HEIGHT),
@@ -131,7 +123,7 @@ int main(){
 		//model.render();
 		screen.newFrame();
 		double fps = 1/(double) deltaTime;
-		// std::cout << fps << std::endl;
+		std::cout << fps << std::endl;
 	}
 
 	//model.cleanup();

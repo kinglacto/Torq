@@ -12,8 +12,10 @@
 
 class ChunkRenderer{
 public:
+    int chunk_x, chunk_z;
+    glm::vec3 worldPos;
     Texture* texture;
-    glm::vec3 block_scaling_factor{4};
+    glm::vec3 block_scaling_factor{10};
 
     std::map<std::pair<int, int>, std::unique_ptr<ChunkMesh>> chunkMeshes;
     std::map<std::pair<int, int>, std::unique_ptr<ActiveChunk>> activeChunks;
