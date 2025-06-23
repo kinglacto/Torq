@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include "block_utility.h"
 
 #define BLOCK_X_SIZE 16
