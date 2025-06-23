@@ -1,25 +1,28 @@
 #pragma once
 
 #include <stdint.h>
-#include <vector>
+#include <chunk_utility.h>
 #include <chunk_utility.h>
 #include <Noise.hpp>
 
-class Terrain {
-public:
-    size_t size_x, size_z;
-    seed_t masterSeed;
-    std::vector<std::vector<float>> heightMap;
-    std::string mapFile;
-    
-    Noise cNoise;  // Continentalness
-    Noise eNoise;  // Erosion
-    Noise pvNoise; // Peaks & Valleys
-    
-    Terrain(seed_t _masterSeed);
-    float getHeight(size_t x, size_t z);
-    void genMap();
-    void extendMap(size_t newX, size_t newZ);
+struct RHeightMap {
+    long rx, rz;
+    float heights[CHUNKS_PER_REGION_SIDE * BLOCK_X_SIZE][CHUNKS_PER_REGION_SIDE * BLOCK_Z_SIZE];
+    RHeightMap(long _rx, long _rz) : rx(_rx), rz(_rz) {}
+};
 
-    void getChunkData(ChunkData* chunk);
+class WorldGen {
+public:
+    static seed_t masterSeed;
+
+    static Noise cNoise;  // Continentalness
+    static Noise eNoise;  // Erosion
+    static Noise pvNoise; // Peaks & Valleys
+
+    static void setMasterSeed(seed_t _masterSeed);
+    static float getHeight(long x, long z);
+    static void generateRegion(RHeightMap& regionHM, RegionData& regionData);
+    static void genImage(const RHeightMap& region, const std::string mapFile);
+
+    static void getChunkData(ChunkData* chunk);
 };
