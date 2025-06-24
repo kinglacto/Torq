@@ -177,11 +177,11 @@ ChunkErrorCode ChunkRenderer::generateVertices(ChunkData* chunkData,
 void ChunkRenderer::render(Shader* shader){
     for(const auto& [coords, chunkMesh] : chunkMeshes) {
         if (chunkMesh->vertexCount == 0) continue;
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(coords.first * BLOCK_X_SIZE, 0.0f, 
-            coords.second * BLOCK_Z_SIZE)) * glm::scale(glm::mat4(1.0f), block_scaling_factor);
-
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(coords.first * BLOCK_X_SIZE, 0.0f,
+        coords.second * BLOCK_Z_SIZE));
         shader->setMat4("model", model);
         chunkMesh->render(shader);
+
     }
 }
 
@@ -206,12 +206,12 @@ void ChunkRenderer::update(Shader* shader){
     getChunkCoordsFromWorldCoords(static_cast<int>(worldPos.x),
         static_cast<int>(worldPos.z), &chunk_x, &chunk_z);
 
-    /*for (int i = 0; i < 32; i++) {
-        for (int j = 0; j < 32; j++) {
-            makeChunkMesh({i, j});
-        }
-    }*/
-    makeChunkMesh({0, 0});
+    for (int i = 0; i < 32; i++) {
+         for (int j = 0; j < 32; j++) {
+             makeChunkMesh({i, j});
+         }
+     }
+
     updateMeshes();
     render(shader);
 }

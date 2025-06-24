@@ -42,18 +42,17 @@ void Texture::setup(const std::string& texturePath) {
 
 	tilesPerRow = std::ceil(std::sqrt(textures.size()));
 	atlasSize = tilesPerRow * tileSize;
-	unsigned char* atlas = (unsigned char*) malloc((atlasSize * atlasSize * nrChannels) *
-	sizeof(unsigned char));
-	memset(atlas, 0, sizeof(atlas));
+	auto* atlas = static_cast<unsigned char *>(calloc(atlasSize * atlasSize * nrChannels, 1));
 
 	for(int i = 0; i < textures.size(); i++){
 		int x = (i % tilesPerRow);
-		int y = (i / tilesPerRow);	
+		int y = (i / tilesPerRow);
 
-		float u0 = static_cast<float>(x * tileSize)/atlasSize;
-		float v0 = static_cast<float>(y * tileSize)/atlasSize;
-		float u1 = static_cast<float>(x * tileSize + tileSize)/atlasSize;
-		float v1 = static_cast<float>(y * tileSize + tileSize)/atlasSize;
+		float pixelOffset = 0.5f / atlasSize;
+		float u0 = (static_cast<float>(x * tileSize) + pixelOffset) / atlasSize;
+		float v0 = (static_cast<float>(y * tileSize) + pixelOffset) / atlasSize;
+		float u1 = (static_cast<float>(x * tileSize + tileSize) - pixelOffset) / atlasSize;
+		float v1 = (static_cast<float>(y * tileSize + tileSize) - pixelOffset) / atlasSize;
 
 
 		uvMap[textures[i].id] = glm::vec4(u0, v0, u1, v1);
@@ -75,11 +74,7 @@ void Texture::setup(const std::string& texturePath) {
 
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	if (atlas) {
 
@@ -98,9 +93,16 @@ void Texture::setup(const std::string& texturePath) {
 			return;
 		}	
 
-		glTexImage2D(GL_TEXTURE_2D, 0, format, atlasSize, atlasSize, 0, format, GL_UNSIGNED_BYTE, atlas);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, atlasSize,
+		atlasSize, 0, format, GL_UNSIGNED_BYTE, static_cast<const GLvoid*>(atlas));
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	else {

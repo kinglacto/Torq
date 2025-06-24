@@ -4,7 +4,7 @@ Camera::Camera(glm::vec3 position)
     : zoom(45.0f), cameraPos(position), cameraFront(glm::vec3(0.0f, 0.0f, -1.0f)),
     cameraUp{glm::vec3(0.0f, 1.0f, 0.0f)}, cameraRight{glm::vec3(1.0f, 0.0f, 0.0f)}, 
     worldUp{glm::vec3(0.0f, 1.0f, 0.0f)}, yaw{-90.0f}, pitch{0.0f}, sensitivity{18.0f}, 
-    speed{6000.0f}, znear{1.0f}, zfar{4000.0f}, deltaTime{0} {
+    speed{8000.0f}, znear{1.0f}, zfar{4000.0f}, deltaTime{0} {
     updateCameraVectors();
 }
 

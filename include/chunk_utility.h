@@ -12,7 +12,8 @@
 using chunk_header_offset_type = uint32_t;
 using chunk_header_length_type = uint32_t;
 
-inline int MathMod(int a, int b){
+template<typename T>
+T MathMod(T a, T b){
     return (a % b + b) % b;
 }
 

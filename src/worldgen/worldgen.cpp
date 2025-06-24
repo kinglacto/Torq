@@ -28,12 +28,12 @@ float WorldGen::getHeight(long x, long z) {
     float pvValue = pvNoise.get2D(x, z);
 
     float finalValue;
-    if (cValue < 0.3)
-        finalValue = 0.1 * cValue;
-    else if (cValue < 0.6)
-        finalValue = 0.8 * cValue + 0.3 * 0.1;
+    if (cValue < 0.3f)
+        finalValue = 0.1f * cValue;
+    else if (cValue < 0.6f)
+        finalValue = 0.8f * cValue + 0.3f * 0.1f;
     else
-        finalValue = 0.05 * cValue + 0.8 * 0.6;
+        finalValue = 0.05f * cValue + 0.8f * 0.6f;
 
     return finalValue;
 }
@@ -41,17 +41,17 @@ float WorldGen::getHeight(long x, long z) {
 void WorldGen::generateRegion(RHeightMap* regionHM, RegionData* regionData) {
     long xoffset = regionHM->rx * BLOCKS_PER_REGION_SIDE;
     long zoffset = regionHM->rz * BLOCKS_PER_REGION_SIDE;
-    blockData Stone; Stone.id = 1;
-    blockData Air; Air.id = 0;
+    blockData Stone{}; Stone.id = 1;
+    blockData Air{}; Air.id = 0;
 
     for (long x = 0; x < BLOCKS_PER_REGION_SIDE; x++) {
         for (long z = 0; z < BLOCKS_PER_REGION_SIDE; z++) {
             float noise = getHeight(xoffset + x, zoffset + z);
             regionHM->heights[x][z] = noise;
-            long chunkX = x / BLOCK_X_SIZE;
-            long chunkZ = z / BLOCK_Z_SIZE;
-            long localX = x % BLOCK_X_SIZE;
-            long localZ = z % BLOCK_Z_SIZE;
+            long chunkX = static_cast<int>(std::floor(static_cast<float>(x) / BLOCK_X_SIZE));
+            long chunkZ = static_cast<int>(std::floor(static_cast<float>(z) / BLOCK_Z_SIZE));
+            long localX = MathMod(x, static_cast<long>(BLOCK_X_SIZE));
+            long localZ = MathMod(z, static_cast<long>(BLOCK_Z_SIZE));
             int surfaceHeight = static_cast<int>(noise * BLOCK_Y_SIZE);
             regionData->chunks[chunkX][chunkZ].x = chunkX;
             regionData->chunks[chunkX][chunkZ].z = chunkZ;
@@ -61,11 +61,11 @@ void WorldGen::generateRegion(RHeightMap* regionHM, RegionData* regionData) {
     }
 }
 
-void setPixel(uint8_t* pixel, float noise) {
+void setPixel(uint8_t* pixel, const float noise) {
     *pixel = *(pixel + 1) = *(pixel + 2) = static_cast<int>(noise * 255);
 }
 
-void WorldGen::genImage(const RHeightMap& region, const std::string mapFile) {
+void WorldGen::genImage(const RHeightMap& region, const std::string& mapFile) {
     uint8_t pixels[BLOCKS_PER_REGION_SIDE * BLOCKS_PER_REGION_SIDE * 3];
     for (int i = 0; i < BLOCKS_PER_REGION_SIDE; i++)
         for (int j = 0; j < BLOCKS_PER_REGION_SIDE; j++)

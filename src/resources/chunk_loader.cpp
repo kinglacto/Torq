@@ -218,11 +218,8 @@ ChunkErrorCode ChunkLoader::writeRegion(RegionData* regionData){
     int region_x = regionData->x;
     int region_z = regionData->z;
 
-    auto region_coords = std::make_pair(region_x, region_z);
-
-    if (ExistingFiles.find(region_coords) == ExistingFiles.end()){
-        ChunkErrorCode e = createRegionFile(region_x, region_z);
-        if (e != NO_ERROR){
+    if (auto region_coords = std::make_pair(region_x, region_z); !ExistingFiles.contains(region_coords)){
+        if (ChunkErrorCode e = createRegionFile(region_x, region_z); e != NO_ERROR){
             return e;
         }
         ExistingFiles.insert(region_coords);
@@ -276,17 +273,18 @@ ChunkErrorCode ChunkLoader::writeRegion(RegionData* regionData){
         return FILE_ERROR;
     }
 
-    file.write(reinterpret_cast<const char*>(final_payload.data()), final_payload.size());
-    if (!file) {
-        std::cerr << "Failed to write chunk data to " << filePath << "\n";
-        return FILE_ERROR;
-    }
-
-    file.seekg(0, std::ios::beg);
+    file.seekp(0, std::ios::beg);
     file.write(reinterpret_cast<const char*>(header.data()), header_size);
     if (!file) {
         std::cerr << "Failed to write updated header to " << filePath << "\n";
         return HEADER_CORRUPTED;
+    }
+
+
+    file.write(reinterpret_cast<const char*>(final_payload.data()), final_payload.size());
+    if (!file) {
+        std::cerr << "Failed to write chunk data to " << filePath << "\n";
+        return FILE_ERROR;
     }
 
     return NO_ERROR;

@@ -87,8 +87,8 @@ int main(){
 
 	auto chunkLoader = std::make_shared<ChunkLoader>(std::string(CHUNK_DIR));
     WorldGen::setMasterSeed(123456);
-    RHeightMap* regionHM = new RHeightMap(0, 0);
-    RegionData* regionData = new RegionData(0, 0);
+    auto* regionHM = new RHeightMap(0, 0);
+    auto* regionData = new RegionData(0, 0);
     WorldGen::generateRegion(regionHM, regionData);
 
 	// for (int y = 0; y < BLOCK_Y_SIZE; y++) {
@@ -164,11 +164,6 @@ void processInput() {
 	if (mouse_dx != 0 || mouse_dy != 0) {
 		if (mouse::button(GLFW_MOUSE_BUTTON_LEFT)) camera.updateCameraDirection(mouse_dx, mouse_dy);
 	}
-
-	mouse_scroll = mouse::getScrollDY();
-	if (mouse_scroll != 0) {
-		camera.updateCameraZoom(mouse_scroll);
-	}
 }
 
 void init() {
@@ -177,4 +172,5 @@ void init() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 }
