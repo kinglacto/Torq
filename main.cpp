@@ -50,22 +50,14 @@ double mouse_scroll;
 
 int main(){
 #ifdef TEST_MODE
-    while (true) {
-        seed_t seed;
-        std::cin >> seed;
-        Terrain t(seed);
-        t.genMap();
-        char* args[] = { (char*)"brave" , (char*)t.mapFile.c_str(), NULL };
-        if (fork() == 0) {
-            execvp(args[0], args);
-        }
-        //t.extendMap(512, 512);
-        //if (fork() == 0) {
-        //    execvp(args[0], args);
-        //}
-    }
+    WorldGen::setMasterSeed(123456);
+    RHeightMap* regionHM = new RHeightMap(0, 0);
+    RegionData* regionData = new RegionData(0, 0);
+    WorldGen::generateRegion(regionHM, regionData);
+    WorldGen::genImage(regionHM, "terrainMap.png");
     return 0;
 #endif // TEST_MODE
+#ifdef RELEASE_MODE
     
 	init();
 
@@ -143,6 +135,7 @@ int main(){
 	glfwTerminate();
 	delete[] blockTexMap;
 	return 0;
+#endif
 }
 
 void processInput() {

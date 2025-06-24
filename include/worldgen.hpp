@@ -18,11 +18,15 @@ public:
     static Noise cNoise;  // Continentalness
     static Noise eNoise;  // Erosion
     static Noise pvNoise; // Peaks & Valleys
+    
+    static unsigned int cWeight;
+    static unsigned int eWeight;
+    static unsigned int pvWeight;
 
     static void setMasterSeed(seed_t _masterSeed);
     static float getHeight(long x, long z);
     static void generateRegion(RHeightMap* regionHM, RegionData* regionData);
-    static void genImage(const RHeightMap& region, const std::string mapFile);
+    static void genImage(const RHeightMap* region, const std::string mapFile);
 
     static void getChunkData(ChunkData* chunk);
 };
