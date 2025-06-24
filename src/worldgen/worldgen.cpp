@@ -5,13 +5,15 @@
 #include <Noise.hpp>
 
  seed_t WorldGen::masterSeed;
- Noise WorldGen::cNoise;
- Noise WorldGen::eNoise;
- Noise WorldGen::pvNoise;
+ PerlinNoise WorldGen::cNoise;
+ PerlinNoise WorldGen::eNoise;
+ PerlinNoise WorldGen::pvNoise;
 
  unsigned int WorldGen::cWeight  = 9;
  unsigned int WorldGen::eWeight  = 5;
  unsigned int WorldGen::pvWeight = 7;
+
+Noise WorldGen::fastNoise;
 
 void WorldGen::setMasterSeed(seed_t _masterSeed) {
     // Sets the master seed and seeds the different nosie maps
@@ -22,9 +24,12 @@ void WorldGen::setMasterSeed(seed_t _masterSeed) {
     seed_t eSeed  = std::rand();
     seed_t pvSeed = std::rand();
 
-    cNoise   = Noise(cSeed,  cSeed  % 20, cSeed  % 10, BLOCKS_PER_REGION_SIDE, BLOCKS_PER_REGION_SIDE);
-    eNoise   = Noise(eSeed,  eSeed  % 5, eSeed  % 10, BLOCKS_PER_REGION_SIDE, BLOCKS_PER_REGION_SIDE);
-    pvNoise  = Noise(pvSeed, pvSeed % 20, pvSeed % 10, BLOCKS_PER_REGION_SIDE * 2, BLOCKS_PER_REGION_SIDE * 2);
+    cNoise   = PerlinNoise(cSeed,  cSeed  % 20, cSeed  % 10, BLOCKS_PER_REGION_SIDE, BLOCKS_PER_REGION_SIDE);
+    eNoise   = PerlinNoise(eSeed,  eSeed  % 5, eSeed  % 10, BLOCKS_PER_REGION_SIDE, BLOCKS_PER_REGION_SIDE);
+    pvNoise  = PerlinNoise(pvSeed, pvSeed % 20, pvSeed % 10, BLOCKS_PER_REGION_SIDE * 2, BLOCKS_PER_REGION_SIDE * 2);
+
+    fastNoise = Noise(masterSeed, 0.05f, FastNoiseLite::NoiseType::NoiseType_Perlin);
+    fastNoise.noise.SetFractalOctaves(5);
 }
 
 // Splines add more randomness to perlin noise
@@ -54,7 +59,7 @@ float WorldGen::getHeight(long x, long z) {
     float pvValue = pvSpline(pvNoise.get2D(x, z));
 
     float finalValue = (cValue * cWeight + eValue * eWeight + pvValue * pvWeight) / (cWeight + eWeight + pvWeight);
-    // finalValue = cValue;
+    finalValue = fastNoise.getNoise(x, z);
     return finalValue;
 }
 
@@ -80,7 +85,8 @@ void WorldGen::generateRegion(RHeightMap* regionHM, RegionData* regionData) {
 }
 
 void setPixel(uint8_t* pixel, float noise) {
-    //pixel[0] = pixel[1] = pixel[2] = static_cast<uint8_t>(noise * 255);
+    pixel[0] = pixel[1] = pixel[2] = static_cast<uint8_t>(noise * 255);
+    return;
     if (noise >= 0.75)
         pixel[0] = pixel[1] = pixel[2] = 255;
     else if (noise >= 0.45) {

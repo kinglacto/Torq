@@ -15,13 +15,15 @@ class WorldGen {
 public:
     static seed_t masterSeed;
 
-    static Noise cNoise;  // Continentalness
-    static Noise eNoise;  // Erosion
-    static Noise pvNoise; // Peaks & Valleys
+    static PerlinNoise cNoise;  // Continentalness
+    static PerlinNoise eNoise;  // Erosion
+    static PerlinNoise pvNoise; // Peaks & Valleys
     
     static unsigned int cWeight;
     static unsigned int eWeight;
     static unsigned int pvWeight;
+
+    static Noise fastNoise;
 
     static void setMasterSeed(seed_t _masterSeed);
     static float getHeight(long x, long z);

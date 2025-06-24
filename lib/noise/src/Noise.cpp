@@ -2,7 +2,7 @@
 #include <Noise.hpp>
 #include <cstdint>
 
-Noise::Noise(seed_t _seed, double _frequency, uint32_t _octaves, size_t size_x, size_t size_y) {
+PerlinNoise::PerlinNoise(seed_t _seed, double _frequency, uint32_t _octaves, size_t size_x, size_t size_y) {
     seed = _seed;
     frequency = _frequency;
     octaves = _octaves;
@@ -12,6 +12,16 @@ Noise::Noise(seed_t _seed, double _frequency, uint32_t _octaves, size_t size_x, 
     fy = frequency / size_y;
 }
 
-float Noise::get2D(uint64_t x, uint64_t y) {
+float PerlinNoise::get2D(uint64_t x, uint64_t y) {
     return noise.octave2D_01(x * fx, y * fy, octaves);
+}
+
+Noise::Noise(int seed, float frequency, FastNoiseLite::NoiseType noiseType) {
+    noise = FastNoiseLite(seed);
+    noise.SetFrequency(frequency);
+    noise.SetNoiseType(noiseType);
+}
+
+float Noise::getNoise(float x, float z) {
+    return noise.GetNoise(x, z);
 }
