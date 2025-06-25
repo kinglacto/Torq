@@ -239,6 +239,7 @@ ChunkErrorCode ChunkLoader::writeRegion(RegionData* regionData){
     for(int i = 0; i < CHUNKS_PER_REGION_SIDE; i++){
         for(int j = 0; j < CHUNKS_PER_REGION_SIDE; j++){
             uLongf compressedSize = compressBound(sizeof(regionData->chunks[i][j].blocks));
+            std::vector<Bytef> compressedBuffer(compressedSize);
     
             int zret = compress(    
                 compressedBuffer.data(), 

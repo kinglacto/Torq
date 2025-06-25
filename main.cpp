@@ -90,6 +90,7 @@ int main(){
     auto* regionHM = new RHeightMap(0, 0);
     auto* regionData = new RegionData(0, 0);
     WorldGen::generateRegion(regionHM, regionData);
+    
 	chunkLoader->writeRegion(regionData);
 
 	ChunkRenderer chunkRenderer{};
