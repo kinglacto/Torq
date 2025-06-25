@@ -90,20 +90,7 @@ int main(){
     auto* regionHM = new RHeightMap(0, 0);
     auto* regionData = new RegionData(0, 0);
     WorldGen::generateRegion(regionHM, regionData);
-
-	// for (int y = 0; y < BLOCK_Y_SIZE; y++) {
-	// 	for (int x = 0; x < BLOCK_X_SIZE; x++) {
-	// 		for (int z = 0; z < BLOCK_Z_SIZE; z++) {
-	// 			int c = regionData->chunks[0][0].blocks[y][x][z].id;
-	// 			if (c != 0 && c != 1) {
-	// 				std::cout << c << std::endl;
-	// 			}
-	// 		}
-	// 	}
-	// }
-    
-    chunkLoader->writeChunk(&regionData->chunks[0][0]);
-	//chunkLoader->writeRegion(regionData);
+	chunkLoader->writeRegion(regionData);
 
 	ChunkRenderer chunkRenderer{};
 	chunkRenderer.chunkLoader = chunkLoader;

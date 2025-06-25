@@ -64,6 +64,24 @@ void ResourceManager::DeleteTexture(ResourceManager::ResourceID id){
     textures.erase(it);
 }
 
+void ResourceManager::deleteAllShaders()
+{
+    for (auto& [fst, snd] : shaders)
+    {
+        snd.cleanup();
+        shaders.erase(fst);
+    }
+}
+
+void ResourceManager::deleteAllTextures()
+{
+    for (auto& [fst, snd] : textures)
+    {
+        snd.cleanup();
+        textures.erase(fst);
+    }
+}
+
 void ResourceManager::deleteAll() {
     for (auto& [_, shader] : shaders) shader.cleanup();
     for (auto& [_, texture] : textures) texture.cleanup();
