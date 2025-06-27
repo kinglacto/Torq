@@ -1,86 +1,139 @@
 #include <chunk_renderer.h>
 
-ChunkErrorCode ChunkRenderer::deleteActiveChunk(const std::pair<int, int>& chunk_coords){
+void ChunkRenderer::deleteActiveChunk(const std::pair<int, int>& chunk_coords){
     auto activePtr = activeChunks.find(chunk_coords);
     if (activePtr != activeChunks.end()) {
         if (activePtr->second->chunkEverUpdated){
-            chunkLoader->writeChunk(activePtr->second->chunk.get());
+            auto f = std::make_shared<FileRequest>(WRITE_CHUNK);
+            f->chunkData = std::move(activePtr->second->chunk);
+            chunkLoader->queueRequest(std::move(f));
         }
 
         activeChunks.erase(activePtr);
-        return NO_ERROR;
     }
-
-    return CHUNK_NOT_FOUND;
 }
 
-ChunkErrorCode ChunkRenderer::deleteChunkMesh(const std::pair<int, int>& chunk_coords){
+void ChunkRenderer::deleteActiveChunk(std::shared_ptr<ActiveChunk> activeChunk){
+    if (activeChunk->chunkEverUpdated){
+        auto f = std::make_shared<FileRequest>(WRITE_CHUNK);
+        f->chunkData = std::move(activeChunk->chunk);
+        chunkLoader->queueRequest(std::move(f));
+    }
+}
+
+void ChunkRenderer::deleteChunkMesh(const std::pair<int, int>& chunk_coords){
     auto staticPtr = chunkMeshes.find(chunk_coords);
     if (staticPtr != chunkMeshes.end()) {
         staticPtr->second->deleteMesh();
         chunkMeshes.erase(staticPtr);
         deleteActiveChunk(chunk_coords);
     }
-
-    return CHUNK_NOT_FOUND;
 }
 
-ChunkErrorCode ChunkRenderer::makeChunkMesh(const std::pair<int, int>& chunk_coords){
+void ChunkRenderer::deleteChunkMesh(ChunkMesh* chunkMesh){
+    std::pair<int, int> chunk_coords{chunkMesh->chunk_x, chunkMesh->chunk_z};
+    chunkMesh->deleteMesh();
+    deleteActiveChunk(chunk_coords);
+}
+
+void ChunkRenderer::makeChunkMesh(const std::pair<int, int>& chunk_coords,
+std::shared_ptr<ChunkData> chunkData){
     auto staticPtr = chunkMeshes.find(chunk_coords);
     if (staticPtr == chunkMeshes.end()) {
-        ChunkErrorCode e;
-        auto chunkData = std::move(chunkLoader->getChunk(chunk_coords.first, chunk_coords.second, &e));
-        if (e == NO_ERROR){
-            auto chunkMesh = std::make_unique<ChunkMesh>(chunk_coords.first, chunk_coords.second);
-            ChunkMeshQueue.push({chunkMesh.get(), std::move(chunkData)});
-            chunkMeshes.emplace(chunk_coords, std::move(chunkMesh));
-        }   
-
-        else{
-            return e;
-        }
+        auto chunkMesh = std::make_shared<ChunkMesh>(chunk_coords.first, chunk_coords.second);
+        ChunkMeshQueue.push({chunkMesh, std::move(chunkData)});
+        chunkMeshes.emplace(chunk_coords, std::move(chunkMesh)); 
     }
-
-    return NO_ERROR;
 }
 
-ChunkErrorCode ChunkRenderer::makeChunkActive(const std::pair<int, int>& chunk_coords){
+void ChunkRenderer::makeChunkMeshRequest(const std::pair<int, int>& chunk_coords){
+    auto staticPtr = chunkMeshes.find(chunk_coords);
+    if (staticPtr == chunkMeshes.end()) {
+        auto f = std::make_shared<FileRequest>(GET_CHUNK, chunk_coords.first, chunk_coords.second);
+        chunkLoader->queueRequest(std::move(f));
+    }
+}
+
+void ChunkRenderer::makeChunkActive(const std::pair<int, int>& chunk_coords, 
+    std::shared_ptr<ChunkData> chunkData){
     auto activePtr = activeChunks.find(chunk_coords);
     if (activePtr != activeChunks.end()){
-        return NO_ERROR;
+        return;
     }
 
-    ChunkErrorCode e;
-    auto chunkData = std::move(chunkLoader->getChunk(chunk_coords.first, chunk_coords.second, &e));
-    if (e == NO_ERROR){
-        auto activeChunk = std::make_unique<ActiveChunk>(std::move(chunkData));
-        ActiveChunkRemeshQueue.push(activeChunk.get());
-        activeChunks.emplace(chunk_coords, std::move(activeChunk));
+    auto activeChunk = std::make_shared<ActiveChunk>(std::move(chunkData));
+    ActiveChunkRemeshQueue.push(activeChunk);
+    activeChunks.emplace(chunk_coords, std::move(activeChunk));
 
-        auto staticPtr = chunkMeshes.find(chunk_coords);
-        if (staticPtr == chunkMeshes.end()){
-            auto chunkMesh = std::make_unique<ChunkMesh>(chunk_coords.first, chunk_coords.second);
-            chunkMeshes.emplace(chunk_coords, std::move(chunkMesh));
-        }
-
-        return NO_ERROR;
+    auto staticPtr = chunkMeshes.find(chunk_coords);
+    if (staticPtr == chunkMeshes.end()){
+        auto chunkMesh = std::make_shared<ChunkMesh>(chunk_coords.first, chunk_coords.second);
+        chunkMeshes.emplace(chunk_coords, std::move(chunkMesh));
     }
+}
 
-    else{
-        return e;
+void ChunkRenderer::makeChunkActiveRequest(const std::pair<int, int>& chunk_coords){
+    auto activePtr = activeChunks.find(chunk_coords);
+    if (activePtr != activeChunks.end()){
+        return;
     }
+    auto f = std::make_shared<FileRequest>(GET_CHUNK, chunk_coords.first, chunk_coords.second);
+    chunkLoader->queueRequest(std::move(f));
 }
 
 void ChunkRenderer::updateMeshes(){
+    int chunk_x, chunk_z;
+
+    {
+        std::lock_guard<std::mutex> lock(world_pos_mutex);
+        getChunkCoordsFromWorldCoords(static_cast<int>(worldPos.x), 
+    static_cast<int>(worldPos.z), &chunk_x, &chunk_z);
+    }
+
+    std::shared_ptr<FileResult> f;
+    while (chunkLoader->FileResultQueue.try_pop(f)) {
+        if (f->taskCode == GET_CHUNK){
+            std::pair<int, int> p = {f->x, f->z};
+            pendingChunkRequests.erase(p);
+
+            if (f->err == NO_ERROR && f->chunkData != nullptr){
+                const int chebyshev = std::max(std::abs(f->x  - chunk_x),
+                    std::abs(f->z - chunk_z));
+
+                if (chebyshev <= activeRadius){
+                    makeChunkActive(p, std::move(f->chunkData));
+                }
+
+                else{
+                    makeChunkMesh(p, std::move(f->chunkData));
+                }
+            }
+
+            else{
+                // ToDo: Handle Read Errors
+                std::cout << "read error detected but handling hasn't fully been implemented yet: "
+                << f->err << " for " << f->x << " " << f->z << std::endl;
+            }
+        }
+
+        else{
+            // ToDo: Handle Write Errors
+            std::cout << "write error detected but handling hasn't fully been implemented yet: "
+                << f->err << " for " << f->x << " " << f->z << std::endl;
+        }
+
+        f.reset();
+    }
 
     for(auto & activeChunk : activeChunks){
         if (activeChunk.second->remeshNeeded){
-            ActiveChunkRemeshQueue.push(activeChunk.second.get());
+            ActiveChunkRemeshQueue.push(activeChunk.second);
         }
     }
 
     while(!ChunkMeshQueue.empty()){
-        generateStaticMesh(ChunkMeshQueue.front());
+        auto& [fst, snd] = ChunkMeshQueue.front();
+        generateStaticMesh(fst, snd);
         ChunkMeshQueue.pop();
     }
 
@@ -96,17 +149,21 @@ void ChunkRenderer::cleanup() {
     }
 }
 
-ChunkErrorCode ChunkRenderer::generateStaticMesh(std::pair<ChunkMesh*, std::unique_ptr<ChunkData>>& it){
+ChunkErrorCode ChunkRenderer::generateStaticMesh(
+    std::shared_ptr<ChunkMesh>& mesh, std::shared_ptr<ChunkData>& it){
     std::vector<TextureVertex> vertices;
-    generateVertices(it.second.get(), vertices);
-    it.first->uploadMesh(vertices);
+    ChunkErrorCode e = generateVertices(it.get(), vertices);
+    if (e != NO_ERROR) return e;
+    mesh->uploadMesh(vertices);
     return NO_ERROR;
 }
 
-ChunkErrorCode ChunkRenderer::generateActiveMesh(ActiveChunk* activeChunk){
-    generateVertices(activeChunk->chunk.get(), activeChunk->vertices);
+ChunkErrorCode ChunkRenderer::generateActiveMesh(std::shared_ptr<ActiveChunk>& activeChunk){
+    ChunkErrorCode e = generateVertices(activeChunk->chunk.get(), activeChunk->vertices);
+    if (e != NO_ERROR) return e;
     auto staticPtr = chunkMeshes.find(activeChunk->chunk_coords);
     staticPtr->second->uploadMesh(activeChunk->vertices);
+    activeChunk->remeshNeeded = false;
     return NO_ERROR;
 }
 
@@ -201,17 +258,68 @@ void ChunkRenderer::getRegionCoordsFromWorldCoords(int world_x, int world_z, int
     getRegionCoordsFromChunkCoords(chunk_x, chunk_z, region_x, region_z);
 }
 
-void ChunkRenderer::update(Shader* shader){
+void ChunkRenderer::update(){
     int chunk_x, chunk_z;
-    getChunkCoordsFromWorldCoords(static_cast<int>(worldPos.x),
-        static_cast<int>(worldPos.z), &chunk_x, &chunk_z);
 
-    for (int i = 0; i < 32; i++) {
-         for (int j = 0; j < 32; j++) {
-             makeChunkMesh({i, j});
-         }
-     }
+    {
+        std::lock_guard<std::mutex> lock(world_pos_mutex);
+        getChunkCoordsFromWorldCoords(static_cast<int>(worldPos.x), 
+    static_cast<int>(worldPos.z), &chunk_x, &chunk_z);
+    }
+
+    for (auto it = activeChunks.begin(); it != activeChunks.end();) {
+        int dx = std::abs(it->first.first  - chunk_x);
+        int dz = std::abs(it->first.second - chunk_z);
+
+        if (std::max(dx, dz) > activeRadius) {
+            deleteActiveChunk(it->second);
+            it = activeChunks.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+
+    for (auto it = chunkMeshes.begin(); it != chunkMeshes.end();) {
+        int dx = std::abs(it->first.first  - chunk_x);
+        int dz = std::abs(it->first.second - chunk_z);
+
+        if (std::max(dx, dz) > renderDistance) {
+            deleteChunkMesh(it->second.get());
+            it = chunkMeshes.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+
+    for(int i = chunk_x - activeRadius; i <= chunk_x + activeRadius; i++){
+        for(int j = chunk_z - activeRadius; j <= chunk_z + activeRadius; j++){
+            std::pair<int, int> chunk_coords = {i, j};
+            if (!pendingChunkRequests.contains(chunk_coords))
+            {
+                pendingChunkRequests.insert(chunk_coords);
+                makeChunkActiveRequest(chunk_coords);
+            }
+        }
+    }
+
+    for(int i = chunk_x - renderDistance; i <= chunk_x + renderDistance; i++){
+        for(int j = chunk_z - renderDistance; j <= chunk_z + renderDistance; j++){
+            std::pair<int, int> chunk_coords = {i, j};
+            if (!pendingChunkRequests.contains(chunk_coords))
+            {
+                pendingChunkRequests.insert(chunk_coords);
+                makeChunkMeshRequest(chunk_coords);
+            }
+        }
+    }
 
     updateMeshes();
-    render(shader);
+}
+
+
+void ChunkRenderer::setWorldPos(glm::vec3 worldPos){
+    std::lock_guard<std::mutex> lock(world_pos_mutex);
+    ChunkRenderer::worldPos = worldPos;
 }

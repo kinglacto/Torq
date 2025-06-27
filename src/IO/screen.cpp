@@ -34,16 +34,7 @@ void Screen::setParameters() {
     glfwSetCursorPosCallback(window, mouse::cursorPosCallBack);
     glfwSetMouseButtonCallback(window, mouse::mouseButtonCallBack);
     glfwSetScrollCallback(window, mouse::mouseWheelCallBack);
-	glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-
-    glEnable(GL_MULTISAMPLE);
     //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-}
-
-void Screen::update() {
-	glClearColor(0.529f, 0.808f, 0.922f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Screen::newFrame() {

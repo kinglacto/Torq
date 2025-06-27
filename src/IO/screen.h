@@ -12,8 +12,7 @@ public:
     Screen(int height, int width);
     bool init();
     void setParameters();
-
-    void update();
+    
     void newFrame();
 
     bool shouldClose();

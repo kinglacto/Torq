@@ -1,7 +1,7 @@
 #include <active_chunk.h>
 
-ActiveChunk::ActiveChunk(std::unique_ptr<ChunkData> chunk): 
-chunk{std::move(chunk)}, remeshNeeded{false}, chunkEverUpdated{false}, vertexCount{0} {
+ActiveChunk::ActiveChunk(std::shared_ptr<ChunkData> chunk):
+chunk{chunk}, remeshNeeded{false}, chunkEverUpdated{false}, vertexCount{0} {
     chunk_coords.first = chunk->x;
     chunk_coords.second = chunk->z;
 }

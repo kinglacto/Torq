@@ -29,8 +29,8 @@
 
 #include <chunk_loader.h>
 #include <chunk_renderer.h>
-
-using namespace std;
+#include <filesystem>
+namespace fs = std::filesystem;
 
 void processInput();
 void init();
@@ -66,6 +66,11 @@ int main(){
 
 
 	glfwGetCursorPos(screen.window, &mouse::lastX, &mouse::lastY);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+
+	glEnable(GL_MULTISAMPLE);
+
 	screen.setParameters();
 
 	generate_data();
@@ -85,13 +90,10 @@ int main(){
 	auto view = glm::mat4(1.0f);
 	auto projection = glm::mat4(1.0f);
 
-	auto chunkLoader = std::make_shared<ChunkLoader>(std::string(CHUNK_DIR));
-    WorldGen::setMasterSeed(123456);
-    auto* regionHM = new RHeightMap(0, 0);
-    auto* regionData = new RegionData(0, 0);
-    WorldGen::generateRegion(regionHM, regionData);
-    
-	chunkLoader->writeRegion(regionData);
+	fs::path chunkDirPath(std::string(CHUNKS_DIR));
+	auto chunkLoader = std::make_shared<ChunkLoader>(chunkDirPath, 3);
+	
+	WorldGen::setMasterSeed(123456);
 
 	ChunkRenderer chunkRenderer{};
 	chunkRenderer.chunkLoader = chunkLoader;
@@ -103,19 +105,21 @@ int main(){
 		lastFrame = currentFrame;
 		camera.deltaTime = deltaTime;
 		processInput();
-		chunkRenderer.worldPos = camera.cameraPos;
+		chunkRenderer.setWorldPos(camera.cameraPos);
 		view = camera.getViewMatrix();
 		projection = glm::perspective(glm::radians(camera.getZoom()),
 			static_cast<float>(SCREEN_WIDTH)/static_cast<float>(SCREEN_HEIGHT),
 			camera.znear, camera.zfar);
 
-		screen.update();
+		glClearColor(0.529f, 0.808f, 0.922f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shader->activate();
 
 		shader->setMat4("view", view);
 		shader->setMat4("projection", projection);
-		chunkRenderer.update(shader);
+		chunkRenderer.update();
+		chunkRenderer.render(shader);
 		screen.newFrame();
 		double fps = 1/(double) deltaTime;
 		//std::cout << fps << std::endl;

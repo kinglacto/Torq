@@ -14,9 +14,9 @@ public:
     bool remeshNeeded;
     bool chunkEverUpdated;
 
-    std::unique_ptr<ChunkData> chunk;
+    std::shared_ptr<ChunkData> chunk;
     std::vector<TextureVertex> vertices;
 
-    ActiveChunk(std::unique_ptr<ChunkData> chunk);
+    explicit ActiveChunk(std::shared_ptr<ChunkData> chunk);
     ChunkErrorCode setBlock(int x, int y, int z, blockData data);
 };

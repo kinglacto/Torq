@@ -1,37 +1,84 @@
 #pragma once
 
 #include "chunk_utility.h"
+#include "torq_utility.h"
 #include "worldgen.hpp"
+#include "thread_safe_queue.h"
+#include "thread_pool.h"
 #include <string>
 #include <memory>
-#include <map>
+#include <unordered_map>
 #include <filesystem>
 #include <vector>
 #include <unordered_set>
+#include <mutex>
+#include <thread>
+#include <atomic>
 
-struct PairHash {
-  size_t operator()(std::pair<int,int> const& p) const noexcept {
-    // Pack two 32‑bit ints into one 64‑bit value, then hash
-    uint64_t key = (uint64_t(uint32_t(p.first)) << 32) | uint32_t(p.second);
-    return std::hash<uint64_t>()(key);
-  }
+#define REGION_FILE_EXTENSION "region"
+#define REGION_FILE_PREAMBLE "r"
+#define REGION_FILE_SEPARATOR "."
+#define REGION_FILE_SEPARATOR_CHAR '.'
+
+enum IOTaskCode{
+    DEFAULT,
+    WRITE_CHUNK,
+    GET_CHUNK,
+    WRITE_REGION,
+    GENERATE_WRITE_REGION,
 };
+
+struct FileResult{
+    std::shared_ptr<ChunkData> chunkData;
+    int x, z;
+    IOTaskCode taskCode;
+    ChunkErrorCode err;
+};
+
+struct FileRequest{
+    IOTaskCode taskCode;
+    int x, z;
+    std::shared_ptr<ChunkData> chunkData{nullptr};
+    std::shared_ptr<RegionData> regionData{nullptr};
+};
+
+namespace fs = std::filesystem;
 
 class ChunkLoader{
     static constexpr size_t header_size = CHUNKS_PER_REGION_SIDE * CHUNKS_PER_REGION_SIDE * 
     sizeof(HeaderEntry);
-    std::string chunkDir;
+
+    ThreadPool threadPool;
+
+    fs::path chunkDir;
+
     ChunkErrorCode createRegionFile(int x, int z);
-    std::unordered_set<std::pair<int, int>, PairHash> ExistingFiles;
+
+    std::mutex generated_regions_mutex;
+    std::unordered_set<std::pair<int, int>, PairHash> GeneratedRegions;
+
+    std::mutex file_map_mutex_lock;
+    std::unordered_map<std::pair<int, int>, std::shared_ptr<std::mutex>, PairHash> file_mutexes;
+
+    std::shared_ptr<std::mutex> get_file_mutex(std::pair<int, int>& region_coords);
+
 public:
-    ChunkLoader(const std::string& chunkDir);
+    bool isRegionGenerated(const std::pair<int, int>& region_coords);
+    void markRegionGenerated(const std::pair<int, int>& region_coords);
+
+    ThreadSafeQueue<std::shared_ptr<FileResult>> FileResultQueue;
+    ThreadSafeQueue<std::shared_ptr<FileRequest>> FileRequestQueue;
+
+    explicit ChunkLoader(fs::path chunkDir, size_t num_threads);
     ChunkErrorCode cacheRegionFile(int region_x, int region_z);
 
-    std::unique_ptr<ChunkData> getChunk(int chunk_x, int chunk_z, ChunkErrorCode* error);
+    void writeChunkSync(std::shared_ptr<ChunkData> chunkData, IOTaskCode taskCode);
+    void getChunkSync(int chunk_x, int chunk_z, IOTaskCode taskCode);
+    void writeRegionSync(std::shared_ptr<RegionData> regionData, IOTaskCode);
+    void unlocked_writeRegionSync(std::shared_ptr<RegionData> regionData, IOTaskCode taskCode);
 
-    ChunkErrorCode writeChunk(ChunkData* chunkData);
-    ChunkErrorCode writeRegion(RegionData* regionData);
+    ChunkErrorCode setChunkDir(const fs::path& chunkDir);
+    fs::path getRegionFilePath(int region_x, int region_z) const;
 
-    ChunkErrorCode setChunkDir(const std::string& chunkDir);
-    std::string getRegionFileName(int region_x, int region_z);
+    void queueRequest(std::shared_ptr<FileRequest> request);
 };

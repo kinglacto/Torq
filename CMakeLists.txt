@@ -37,6 +37,9 @@ file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/
 add_executable(torq
         main.cpp
         ${MY_SOURCES}
+        include/torq_utility.h
+        include/thread_pool.h
+        src/resources/thread_pool.cpp
 )
 
 set_target_properties(torq
